@@ -1,0 +1,22 @@
+{
+  "app": { "storeName": "Empório da Música" },
+  "nav": { "chat": "Chat", "complaints": "Complaints" },
+  "language": { "label": "Language", "toggleTo": "Switch to Portuguese", "short": "PT" },
+  "customer": {
+    "label": "Identity",
+    "visitor": "Visitor",
+    "placeholder": "Select who you are",
+    "search": "Search customer...",
+    "empty": "No customers found.",
+    "loading": "Loading customers...",
+    "error": "Could not load customers.",
+    "option": "{{name}} · {{city}} · {{count}} orders"
+  },
+  "chat": { "placeholder": "The chat will be available soon." },
+  "complaints": { "placeholder": "Complaints will be available soon." },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The address you tried to open does not exist.",
+    "back": "Back to chat"
+  }
+}

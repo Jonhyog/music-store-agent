@@ -1,0 +1,22 @@
+{
+  "app": { "storeName": "Empório da Música" },
+  "nav": { "chat": "Chat", "complaints": "Reclamações" },
+  "language": { "label": "Idioma", "toggleTo": "Mudar para inglês", "short": "EN" },
+  "customer": {
+    "label": "Identidade",
+    "visitor": "Visitante",
+    "placeholder": "Selecione quem você é",
+    "search": "Buscar cliente...",
+    "empty": "Nenhum cliente encontrado.",
+    "loading": "Carregando clientes...",
+    "error": "Não foi possível carregar os clientes.",
+    "option": "{{name}} · {{city}} · {{count}} pedidos"
+  },
+  "chat": { "placeholder": "O chat estará disponível em breve." },
+  "complaints": { "placeholder": "As reclamações estarão disponíveis em breve." },
+  "notFound": {
+    "title": "Página não encontrada",
+    "description": "O endereço que você tentou acessar não existe.",
+    "back": "Voltar para o chat"
+  }
+}
