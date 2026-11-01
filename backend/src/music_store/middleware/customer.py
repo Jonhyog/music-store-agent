@@ -7,6 +7,7 @@ from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from music_store.models.customer import CustomerModel
+from music_store.utils import is_numeric
 
 CUSTOMER_HEADER = b"x-customer-id"
 
@@ -42,7 +43,7 @@ class CustomerMiddleware:
         customer: CustomerModel | None = None
         if raw is not None:
             value = raw.decode("latin-1").strip()
-            if not (value.isascii() and value.isdigit()):
+            if not is_numeric(value):
                 await self._reject(scope, receive, send, "Malformed x-customer-id header.")
                 return
             database_path = scope["app"].state.settings.database_path
