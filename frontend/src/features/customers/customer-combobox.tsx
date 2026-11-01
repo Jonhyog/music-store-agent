@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -50,6 +50,26 @@ export function CustomerCombobox() {
     [setCustomer]
   )
 
+  const customerItems = useMemo(
+    () =>
+      data?.customers.map((c) => (
+        <CommandItem
+          key={c.customer_id}
+          value={label(c)}
+          onSelect={() => select(c)}
+        >
+          {label(c)}
+          <CheckIcon
+            className={cn(
+              "ml-auto",
+              customer?.customer_id !== c.customer_id && "opacity-0"
+            )}
+          />
+        </CommandItem>
+      )),
+    [data, customer, label, select]
+  )
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -89,21 +109,7 @@ export function CustomerCombobox() {
                   {t("customer.error")}
                 </div>
               )}
-              {data?.customers.map((c) => (
-                <CommandItem
-                  key={c.customer_id}
-                  value={label(c)}
-                  onSelect={() => select(c)}
-                >
-                  {label(c)}
-                  <CheckIcon
-                    className={cn(
-                      "ml-auto",
-                      customer?.customer_id !== c.customer_id && "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
+              {customerItems}
             </CommandGroup>
           </CommandList>
         </Command>
