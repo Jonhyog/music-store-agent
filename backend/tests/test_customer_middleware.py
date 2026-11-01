@@ -45,3 +45,13 @@ def test_400_carries_cors_headers(client):
     )
     assert r.status_code == 400
     assert r.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_unexpected_failure_is_a_generic_500(whoami, settings, monkeypatch):
+    def boom(*args):
+        raise RuntimeError("secret internals")
+
+    monkeypatch.setattr("music_store.middleware.customer._load_customer", boom)
+    r = whoami.get("/whoami", headers={"x-customer-id": "1"})
+    assert r.status_code == 500
+    assert r.json() == {"detail": "Unexpected error."}
