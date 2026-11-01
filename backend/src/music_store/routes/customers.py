@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from music_store.db import Db
-from music_store.models.customer import CustomerModel, CustomersResponseModel
+from music_store.models.customer import CustomersResponseModel, CustomerWithOrderCountModel
 from music_store.utils import pagination_params
 
 router = APIRouter()
@@ -33,5 +33,5 @@ def list_customers(
         pagination_params(page, page_size),
     ).fetchall()
     return CustomersResponseModel(
-        customers=[CustomerModel(**r) for r in rows], page=page, total=total
+        customers=[CustomerWithOrderCountModel(**r) for r in rows], page=page, total=total
     )

@@ -9,8 +9,11 @@ class CustomerModel(BaseModel):
     phone: str | None
     email: str | None
     city: str | None
+
+
+class CustomerWithOrderCountModel(CustomerModel):
     order_count: int
 
 
 class CustomersResponseModel(PaginatedResponseBaseModel):
-    customers: list[CustomerModel]
+    customers: list[CustomerWithOrderCountModel]

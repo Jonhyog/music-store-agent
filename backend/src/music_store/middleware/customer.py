@@ -11,12 +11,9 @@ from music_store.models.customer import CustomerModel
 CUSTOMER_HEADER = b"x-customer-id"
 
 GET_CUSTOMER_QUERY = """
-    SELECT c.customer_id, c.name, c.phone, c.email, c.city,
-           COUNT(o.order_id) AS order_count
-    FROM customers c
-    LEFT JOIN orders o ON o.customer_id = c.customer_id
-    WHERE c.customer_id = ?
-    GROUP BY c.customer_id
+    SELECT customer_id, name, phone, email, city
+    FROM customers
+    WHERE customer_id = ?
 """
 
 
