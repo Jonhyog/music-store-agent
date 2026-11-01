@@ -22,10 +22,17 @@ import { cn } from "@/lib/utils"
 import { fetchCustomers, type Customer } from "./api"
 import { useIdentity } from "./identity"
 
+// cmdk always marks one item as selected and moves the mark on pointer move.
+// Only paint it while the pointer is over the list or the keyboard is in use.
+const ITEM_CLASS =
+  "data-selected:bg-transparent group-data-[active=true]/cmd:data-[selected=true]:bg-muted"
+
 export function CustomerCombobox() {
   const { t } = useTranslation()
   const { customer, setCustomer } = useIdentity()
   const [open, setOpen] = useState(false)
+  // Whether the pointer is over the list or the keyboard is in use.
+  const [active, setActive] = useState(false)
   const { data, isPending, isError } = useQuery({
     queryKey: ["customers"],
     queryFn: fetchCustomers,
@@ -54,6 +61,7 @@ export function CustomerCombobox() {
     () =>
       data?.customers.map((c) => (
         <CommandItem
+          className={ITEM_CLASS}
           key={c.customer_id}
           value={label(c)}
           onSelect={() => select(c)}
@@ -87,12 +95,19 @@ export function CustomerCombobox() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96 p-0" align="end">
-        <Command>
+        <Command
+          className="group/cmd"
+          data-active={active}
+          onKeyDown={() => setActive(true)}
+          onPointerMove={() => setActive(true)}
+          onPointerLeave={() => setActive(false)}
+        >
           <CommandInput placeholder={t("customer.search")} />
           <CommandList>
             <CommandEmpty>{t("customer.empty")}</CommandEmpty>
             <CommandGroup>
               <CommandItem
+                className={ITEM_CLASS}
                 value={t("customer.visitor")}
                 onSelect={() => select(null)}
               >
