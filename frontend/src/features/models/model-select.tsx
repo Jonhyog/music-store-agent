@@ -1,3 +1,4 @@
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -27,6 +28,22 @@ export function ModelSelect() {
   const { t } = useTranslation()
   const { models, isPending, isError, modelId, setModelId } = useModel()
 
+  const modelItems = useMemo(
+    () =>
+      models.map((m) => (
+        <SelectItem key={m.id} value={m.id} disabled={!m.available}>
+          <AvailabilityDot available={m.available} />
+          {m.label}
+          {!m.available && (
+            <span className="text-muted-foreground">
+              {t("model.unavailable")}
+            </span>
+          )}
+        </SelectItem>
+      )),
+    [models, t]
+  )
+
   return (
     <Select
       value={modelId ?? ""}
@@ -45,17 +62,7 @@ export function ModelSelect() {
         />
       </SelectTrigger>
       <SelectContent position="popper" align="end">
-        {models.map((m) => (
-          <SelectItem key={m.id} value={m.id} disabled={!m.available}>
-            <AvailabilityDot available={m.available} />
-            {m.label}
-            {!m.available && (
-              <span className="text-muted-foreground">
-                {t("model.unavailable")}
-              </span>
-            )}
-          </SelectItem>
-        ))}
+        {modelItems}
       </SelectContent>
     </Select>
   )
