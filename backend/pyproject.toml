@@ -14,6 +14,7 @@ dependencies = [
 dev = [
     "httpx>=0.28.1",
     "pytest>=9.2.0",
+    "ruff>=0.17.3",
 ]
 
 [project.scripts]
@@ -28,3 +29,14 @@ packages = ["src/music_store"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
