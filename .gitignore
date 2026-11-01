@@ -13,3 +13,8 @@ venv/
 *.sqlite3
 .pytest_cache/
 .ruff_cache/
+
+# Frontend
+node_modules/
+dist/
+*.tsbuildinfo
