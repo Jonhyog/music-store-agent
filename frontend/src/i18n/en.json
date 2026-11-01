@@ -1,7 +1,7 @@
 {
   "app": { "storeName": "Empório da Música" },
   "nav": { "chat": "Chat", "complaints": "Complaints" },
-  "language": { "label": "Language", "toggleTo": "Switch to Portuguese", "short": "PT" },
+  "language": { "label": "Language", "toggleTo": "Switch to Portuguese", "short": "EN" },
   "customer": {
     "label": "Identity",
     "visitor": "Visitor",
