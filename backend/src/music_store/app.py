@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from music_store.middleware.customer import CustomerMiddleware
+from music_store.middleware.model import ModelMiddleware
 from music_store.providers import ProviderRegistry
 from music_store.routes import customers
 from music_store.settings import Settings
@@ -25,7 +26,9 @@ def create_app(
     app = FastAPI(title="Music Store Assistant", lifespan=lifespan)
     app.state.settings = settings
     app.state.registry = registry or ProviderRegistry(settings)
-    # Last added runs first: CORS wraps the customer middleware so 400s carry CORS headers.
+    # Last added runs first, so the order is CORS, customer, model. CORS wraps the rest so
+    # error responses still carry CORS headers.
+    app.add_middleware(ModelMiddleware)
     app.add_middleware(CustomerMiddleware)
     app.add_middleware(
         CORSMiddleware,
