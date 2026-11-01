@@ -6,8 +6,8 @@ from music_store.middleware.customer import CurrentCustomer
 
 
 @pytest.fixture
-def whoami(settings):
-    app = create_app(settings)
+def whoami(settings, registry):
+    app = create_app(settings, registry=registry)
 
     @app.get("/whoami")
     def whoami(customer: CurrentCustomer):
