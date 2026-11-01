@@ -17,3 +17,13 @@ class MalformedCustomerIdError(DomainError):
 class UnknownCustomerError(DomainError):
     status_code = 400
     detail = "Unknown customer."
+
+
+class UnknownModelError(DomainError):
+    status_code = 400
+    detail = "Unknown model."
+
+
+class ModelUnavailableError(DomainError):
+    status_code = 503
+    detail = "Model is unavailable."

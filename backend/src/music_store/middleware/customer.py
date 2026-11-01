@@ -1,21 +1,17 @@
-import logging
 import sqlite3
 from pathlib import Path
 from typing import Annotated
 
 from anyio import to_thread
 from fastapi import Depends, Request
-from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from music_store.errors import DomainError, MalformedCustomerIdError, UnknownCustomerError
+from music_store.errors import MalformedCustomerIdError, UnknownCustomerError
+from music_store.middleware.errors import error_response
 from music_store.models.customer import CustomerModel
 from music_store.utils import is_numeric
 
-logger = logging.getLogger(__name__)
-
 CUSTOMER_HEADER = b"x-customer-id"
-UNEXPECTED_ERROR_DETAIL = "Unexpected error."
 
 GET_CUSTOMER_QUERY = """
     SELECT customer_id, name, phone, email, city
@@ -65,11 +61,8 @@ class CustomerMiddleware:
 
         try:
             customer = await _resolve_customer(scope)
-        except DomainError as error:
-            response = JSONResponse({"detail": error.detail}, status_code=error.status_code)
-        except Exception:
-            logger.exception("Unexpected error resolving the customer")
-            response = JSONResponse({"detail": UNEXPECTED_ERROR_DETAIL}, status_code=500)
+        except Exception as error:
+            response = error_response(error)
         else:
             scope.setdefault("state", {})["customer"] = customer
             await self.app(scope, receive, send)

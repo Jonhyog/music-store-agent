@@ -50,3 +50,13 @@ def test_unknown_model_error_carries_cors_headers(client):
     r = client.get("/customers", headers={"x-model": "nope", "Origin": "http://localhost:5173"})
     assert r.status_code == 400
     assert r.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_unexpected_failure_is_a_generic_500(probe, registry, monkeypatch):
+    def boom(spec):
+        raise RuntimeError("secret internals")
+
+    monkeypatch.setattr(registry, "is_available", boom)
+    r = probe.get("/chat")
+    assert r.status_code == 500
+    assert r.json() == {"detail": "Unexpected error."}
