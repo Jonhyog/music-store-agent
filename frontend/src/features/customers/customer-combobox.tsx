@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { CheckIcon, ChevronsUpDownIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
@@ -32,13 +32,23 @@ export function CustomerCombobox() {
     staleTime: Infinity,
   })
 
-  const label = (c: Customer) =>
-    t("customer.option", { name: c.name, city: c.city, count: c.order_count })
+  const label = useCallback(
+    (c: Customer) =>
+      t("customer.option", {
+        name: c.name,
+        city: c.city,
+        count: c.order_count,
+      }),
+    [t]
+  )
 
-  const select = (next: Customer | null) => {
-    setCustomer(next)
-    setOpen(false)
-  }
+  const select = useCallback(
+    (next: Customer | null) => {
+      setCustomer(next)
+      setOpen(false)
+    },
+    [setCustomer]
+  )
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -79,7 +89,7 @@ export function CustomerCombobox() {
                   {t("customer.error")}
                 </div>
               )}
-              {data?.map((c) => (
+              {data?.customers.map((c) => (
                 <CommandItem
                   key={c.customer_id}
                   value={label(c)}

@@ -9,11 +9,14 @@ export type Customer = {
   order_count: number
 }
 
-type CustomersResponse = { customers: Customer[]; page: number; total: number }
+export type CustomersResponse = {
+  customers: Customer[]
+  page: number
+  total: number
+}
 
-export async function fetchCustomers(): Promise<Customer[]> {
+export async function fetchCustomers(): Promise<CustomersResponse> {
   const res = await fetch(`${API_URL}/customers?page=1&pageSize=50`)
   if (!res.ok) throw new Error(`Failed to load customers (${res.status})`)
-  const body = (await res.json()) as CustomersResponse
-  return body.customers
+  return (await res.json()) as CustomersResponse
 }
