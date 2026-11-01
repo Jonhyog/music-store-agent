@@ -1,0 +1,16 @@
+meta {
+  name: List customers
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/customers?page=1&pageSize=20
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  pageSize: 20
+}
