@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from music_store.db import Db
+from music_store.utils import pagination_params
 
 router = APIRouter()
 
@@ -28,6 +29,6 @@ def list_customers(
     total = db.execute(COUNT_CUSTOMERS_QUERY).fetchone()[0]
     rows = db.execute(
         LIST_CUSTOMERS_QUERY,
-        (page_size, (page - 1) * page_size),
+        pagination_params(page, page_size),
     ).fetchall()
     return {"customers": [dict(r) for r in rows], "page": page, "total": total}
