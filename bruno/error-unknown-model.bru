@@ -1,0 +1,15 @@
+meta {
+  name: Error - unknown model (400)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/customers
+  body: none
+  auth: none
+}
+
+headers {
+  x-model: not-a-model
+}
