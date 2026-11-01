@@ -2,6 +2,7 @@ import { NavLink, useLocation } from "react-router"
 import { useTranslation } from "react-i18next"
 
 import { CustomerCombobox } from "@/features/customers/customer-combobox"
+import { ModelSelect } from "@/features/models/model-select"
 import { cn } from "@/lib/utils"
 
 import { LanguageToggle } from "./language-toggle"
@@ -29,7 +30,12 @@ export function Header() {
         </NavLink>
       </nav>
       <div className="ml-auto flex items-center gap-2">
-        {pathname === "/" && <CustomerCombobox />}
+        {pathname === "/" && (
+          <>
+            <CustomerCombobox />
+            <ModelSelect />
+          </>
+        )}
         <LanguageToggle />
       </div>
     </header>

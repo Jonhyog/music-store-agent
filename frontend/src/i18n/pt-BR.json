@@ -12,6 +12,13 @@
     "error": "Não foi possível carregar os clientes.",
     "option": "{{name}} · {{city}} · {{count}} pedidos"
   },
+  "model": {
+    "label": "Modelo",
+    "placeholder": "Selecione um modelo",
+    "loading": "Carregando modelos...",
+    "error": "Não foi possível carregar os modelos.",
+    "unavailable": "(indisponível)"
+  },
   "chat": { "placeholder": "O chat estará disponível em breve." },
   "complaints": { "placeholder": "As reclamações estarão disponíveis em breve." },
   "notFound": {

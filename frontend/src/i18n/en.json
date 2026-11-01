@@ -12,6 +12,13 @@
     "error": "Could not load customers.",
     "option": "{{name}} · {{city}} · {{count}} orders"
   },
+  "model": {
+    "label": "Model",
+    "placeholder": "Select a model",
+    "loading": "Loading models...",
+    "error": "Could not load models.",
+    "unavailable": "(unavailable)"
+  },
   "chat": { "placeholder": "The chat will be available soon." },
   "complaints": { "placeholder": "Complaints will be available soon." },
   "notFound": {
