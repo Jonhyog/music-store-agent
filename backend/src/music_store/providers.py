@@ -5,6 +5,8 @@ from typing import Literal
 import httpx
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel
+from langchain_ollama import ChatOllama, OllamaEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from music_store.settings import Settings
 
@@ -67,23 +69,15 @@ class ProviderRegistry:
     def chat_model(self, model_id: str) -> BaseChatModel:
         spec = self._require(model_id)
         if spec.provider == "openai":
-            from langchain_openai import ChatOpenAI
-
             return ChatOpenAI(model=spec.id, api_key=self.settings.openai_api_key)
-        from langchain_ollama import ChatOllama
-
         return ChatOllama(model=spec.id, base_url=self.settings.ollama_base_url, reasoning=False)
 
     def embeddings(self, model_id: str) -> Embeddings:
         spec = self._require(model_id)
         if spec.provider == "openai":
-            from langchain_openai import OpenAIEmbeddings
-
             return OpenAIEmbeddings(
                 model=OPENAI_EMBEDDING_MODEL, api_key=self.settings.openai_api_key
             )
-        from langchain_ollama import OllamaEmbeddings
-
         return OllamaEmbeddings(
             model=OLLAMA_EMBEDDING_MODEL, base_url=self.settings.ollama_base_url
         )
