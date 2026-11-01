@@ -52,3 +52,16 @@ def test_fake_embeddings_are_deterministic():
     e = FakeEmbeddings()
     assert e.embed_query("a") == e.embed_query("a")
     assert e.embed_query("a") != e.embed_query("b")
+
+
+def test_blank_openai_key_marks_api_model_unavailable(settings):
+    blank = Settings(
+        _env_file=None,
+        database_path=settings.database_path,
+        ollama_base_url="http://127.0.0.1:1",
+        openai_api_key="",
+    )
+    with TestClient(create_app(blank)) as c:
+        models = {m["id"]: m for m in c.get("/models").json()["models"]}
+    assert models["gpt-5.6-luna"]["available"] is False
+    assert models["qwen3:4b"]["available"] is False

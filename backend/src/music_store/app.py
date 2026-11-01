@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from music_store.middleware.customer import CustomerMiddleware
 from music_store.middleware.model import ModelMiddleware
 from music_store.providers import ProviderRegistry
-from music_store.routes import customers
+from music_store.routes import customers, models
 from music_store.settings import Settings
 
 
@@ -37,6 +37,7 @@ def create_app(
         allow_headers=["*"],
     )
     app.include_router(customers.router)
+    app.include_router(models.router)
     return app
 
 

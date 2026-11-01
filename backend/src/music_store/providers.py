@@ -53,7 +53,8 @@ class ProviderRegistry:
 
     def is_available(self, spec: ModelSpec) -> bool:
         if spec.provider == "openai":
-            return self.settings.openai_api_key is not None
+            key = self.settings.openai_api_key
+            return key is not None and bool(key.get_secret_value().strip())
         try:
             r = httpx.get(
                 f"{self.settings.ollama_base_url}/api/tags",
