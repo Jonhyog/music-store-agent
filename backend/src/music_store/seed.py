@@ -115,3 +115,7 @@ def main() -> None:
     settings = Settings()
     seed(settings.database_path, settings.data_dir)
     print(f"Seeded {settings.database_path} from {settings.data_dir}")
+
+
+if __name__ == "__main__":
+    main()
