@@ -35,7 +35,8 @@ def test_text_checks_ignore_case_and_accents_free_matching_is_not_assumed():
     assert does_not_contain("BR123")(_reply("nada")) is None
 
 
-def test_asks_confirmation_needs_a_question_mark():
+def test_asks_confirmation_accepts_a_question_or_a_confirm_request():
+    assert asks_confirmation()(_reply('Confirme com "sim" para prosseguir.')) is None
     assert asks_confirmation()(_reply("Posso registrar?")) is None
     assert asks_confirmation()(_reply("Registrado.")) is not None
 

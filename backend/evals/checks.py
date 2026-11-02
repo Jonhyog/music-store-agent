@@ -79,4 +79,9 @@ def does_not_contain(*fragments: str) -> Check:
 
 @_unless_errored
 def asks_confirmation() -> Check:
-    return lambda reply: None if "?" in reply.text else "expected a question asking to confirm"
+    def check(reply: Reply) -> str | None:
+        if "?" in reply.text or "confirm" in reply.text.lower():
+            return None
+        return "expected a request to confirm"
+
+    return check
