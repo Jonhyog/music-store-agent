@@ -65,13 +65,18 @@ def search_products(
 def get_product(
     conn: sqlite3.Connection, *, product_id: int | None = None, name: str | None = None
 ) -> dict[str, Any] | None:
-    """Return one Product by id, or by exact (accent/case-insensitive) name."""
-    for product in _all_products(conn):
-        if product_id is not None and product["product_id"] == product_id:
-            return product
-        if name is not None and _normalize(product["name"]) == _normalize(name).strip():
-            return product
-    return None
+    """Return one Product by id, or by name: exact first, else the only partial match."""
+    products = _all_products(conn)
+    if product_id is not None:
+        return next((p for p in products if p["product_id"] == product_id), None)
+    if name is None:
+        return None
+    wanted = _normalize(name).strip()
+    exact = [p for p in products if _normalize(p["name"]) == wanted]
+    if exact:
+        return exact[0]
+    partial = [p for p in products if wanted and wanted in _normalize(p["name"])]
+    return partial[0] if len(partial) == 1 else None
 
 
 def list_categories(conn: sqlite3.Connection) -> list[dict[str, Any]]:

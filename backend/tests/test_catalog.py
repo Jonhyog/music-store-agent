@@ -63,6 +63,11 @@ def test_get_product_by_id_and_by_name(conn):
     assert by_id is not None and by_id == by_name
 
 
+def test_get_product_by_unique_partial_name(conn):
+    assert get_product(conn, name="C40")["product_id"] == 81
+    assert get_product(conn, name="Yamaha") is None  # ambiguous
+
+
 def test_get_product_unknown_returns_none(conn):
     assert get_product(conn, product_id=999999) is None
     assert get_product(conn, name="Theremin Imaginário") is None
