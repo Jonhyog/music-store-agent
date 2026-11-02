@@ -185,6 +185,31 @@ The source CSVs and PDF are never modified. The seed script loads them into SQLi
 
 Complaints have their own table: id, Customer, optional Order (checked to belong to that Customer), category (`product_defect`, `delivery`, `service`, `payment` or `other`), the Assistant's Portuguese summary, the Conversation id and a real creation time. Only identified Customers can file one. Visitors are sent to the store's WhatsApp number and email. Filing is confirmed first: the Assistant summarizes and asks "Posso registrar?" and calls the tool only after the next message confirms. It then answers with "Protocolo #N" and the 24-business-hour promise from the manual.
 
+## Assumptions
+
+- **Reference date.** The data is a snapshot, so "today" is fixed at `2026-03-25` (`REFERENCE_DATE`, set in `backend/.env`). It is injected into the prompt and is what the Assistant compares against for return windows and delivery dates. Using the real clock would make every delivered Order in the data look years old. Complaints are the one exception: their creation time is the real time.
+- **Estimated delivery stands in for actual delivery.** Orders have an `estimated_delivery` date and no delivery date. For a delivered Order, the Assistant treats the estimate as the delivery date and says so in its answer, for example when it checks whether the 7-day return window is still open.
+- **The Complaints screen is a staff view.** The Complaints page lists every Complaint from every Customer and ignores the selected Customer. In a real deployment it would sit behind staff authentication. Here, as with the rest of the app, there is no login.
+- **Identity comes from the Customer selector.** There is no authentication, so the `x-customer-id` header is trusted, and the interface's Customer picker stands in for "who is logged in". No header means a Visitor.
+- **The Policy Manual is the source for store facts.** Hours, address, phone numbers, payment, shipping and return rules are answered only from it, never from the model's memory.
+- **Instruments only.** Accessories (strings, picks, cables, cases, pedals, amplifiers) are not sold, so the Assistant redirects to partner stores.
+
+## Known data problems
+
+The source data has inconsistencies. They are documented and handled in the prompt rather than edited away, because the data belongs to the store.
+
+- **Product names and descriptions name different brands.** For example, product 135 is "Music Man Bass 1X" but its description says Fender Jazz Bass; 137 is a Yamaha whose description says Ibanez; 139 a Yamaha described as a Pearl; 140 a Pearl described as a Tama; 142 a Korg described as a Roland; 144 a Roland described as a Yamaha. The name is what the Customer buys and sees, so the Assistant treats the name as authoritative and does not repeat a conflicting brand from the description.
+- **The Policy Manual contradicts itself.**
+  - Two different phone numbers: `(67) 3341-4444` (contact details) and `(67) 3321-4500` (the WhatsApp channel).
+  - Two spellings of the email: `contato@emporiodamusica.com.br` and `contato@empóriodamusica.com.br` (with an accent, which is not a valid address).
+  - Inconsistent installment minimums: the payment table says a minimum installment of R$ 100 for credit cards, while the installment rules say there is no minimum up to 3x and R$ 80 for 4x to 6x.
+
+  When passages conflict, the Assistant gives the more conservative answer (the stricter rule or the higher minimum) and suggests confirming with the store.
+- **One email belongs to two Customers** (`bruno.martins@jmail.com`). The email is not a key. The Assistant identifies Customers by id only, so this has no effect on what anyone can see.
+- **Status and payment method are free text, not normalized,** and `orders.total_brl` is stored rather than calculated (Order items do not keep the price paid). The Assistant reports the stored values.
+
+Not a data problem, but worth knowing: most of the 50 Customers (32) have never placed an Order. That is normal, since they have an account and simply have not bought yet. The Order tools simply return an empty list for them. Only 18 Customers have Orders, so those are the ones to pick when trying the Order flows (for example Customer 3).
+
 ## Database Schema
 
 ### ER Diagram
