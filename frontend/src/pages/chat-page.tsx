@@ -10,6 +10,7 @@ import {
   PromptInputSubmit,
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input"
+import { useBackendStatus } from "@/features/backend/backend-status"
 import { useChatSession } from "@/features/chat/chat-context"
 import { StarterSuggestions } from "@/features/chat/starter-suggestions"
 import { CustomerSwitchDialog } from "@/features/chat/customer-switch-dialog"
@@ -28,6 +29,7 @@ export function ChatPage() {
     retry,
     clear,
   } = useChatSession()
+  const { reachable } = useBackendStatus()
 
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-4">
@@ -41,7 +43,7 @@ export function ChatPage() {
       />
       <PromptInput
         onSubmit={({ text }) => {
-          if (!isStreaming && text.trim()) send(text.trim())
+          if (reachable && !isStreaming && text.trim()) send(text.trim())
         }}
       >
         <PromptInputBody>
@@ -60,6 +62,7 @@ export function ChatPage() {
           </Button>
           <PromptInputSubmit
             status={status}
+            disabled={!reachable && !isStreaming}
             onStop={stopReply}
             aria-label={isStreaming ? t("chat.stop") : t("chat.send")}
           />

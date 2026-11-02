@@ -28,6 +28,9 @@
     "error": "Could not load models.",
     "unavailable": "(unavailable)"
   },
+  "backend": {
+    "unreachable": "Can't reach the server. Sending is disabled until it is back."
+  },
   "chat": {
     "emptyTitle": "How can I help?",
     "emptyDescription": "Ask about instruments, prices, the store, or your orders.",

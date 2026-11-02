@@ -28,6 +28,9 @@
     "error": "Não foi possível carregar os modelos.",
     "unavailable": "(indisponível)"
   },
+  "backend": {
+    "unreachable": "Não foi possível conectar ao servidor. O envio fica desativado até ele voltar."
+  },
   "chat": {
     "emptyTitle": "Como posso ajudar?",
     "emptyDescription": "Pergunte sobre instrumentos, preços, a loja ou seus pedidos.",

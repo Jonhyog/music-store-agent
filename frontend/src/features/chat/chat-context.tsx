@@ -8,6 +8,7 @@ import { useModel } from "@/features/models/model-context"
 
 import { useTranslation } from "react-i18next"
 
+import { useBackendStatus } from "@/features/backend/backend-status"
 import { useToast } from "@/components/ui/toaster"
 
 import {
@@ -72,11 +73,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   )
   const { t } = useTranslation()
   const { toast } = useToast()
+  const { recheck } = useBackendStatus()
   const { messages, status, sendMessage, stop, regenerate } = useChat({
     id: conversationId,
     transport,
     onError: (error) => {
       if (error instanceof ChatHttpError) toast(t(rejectionKey(error)))
+      else recheck() // a connection failure: let the banner find out
     },
   })
 
