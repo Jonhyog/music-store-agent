@@ -250,6 +250,30 @@ The example conversations in [`docs/examples`](docs/examples/README.md) come fro
 - **A broader eval.** More scenarios, several runs per scenario to measure flakiness, and a comparison of larger local models.
 - **Confirmation in code.** Enforce "confirm before filing" with a two-step tool or a human-in-the-loop interrupt rather than only the prompt, so even a weak model cannot file a Complaint unconfirmed or fake a protocol number.
 
+## How AI coding assistants were used
+
+The whole project was built with an AI coding agent in Cursor, driven by a repeatable workflow of small reusable "skills" (written instructions the agent follows) kept in the repo's `.agents/` folder. The human made the product and design decisions, and reviewed every step. The agent did the interviewing, writing, coding and checking. The sequence:
+
+1. **Design session first, no code.** A long "grilling" session in which the agent interviewed the author about the challenge brief, one decision at a time, and walked each branch of the design tree: scoping and identity, models, retrieval, history ownership, the streaming contract, Complaints, the prompt, the frontend and i18n. The agent proposed a recommended answer for each question and challenged weak ones, and the author accepted, changed or rejected it. Some decisions changed here. For example, client-held history was dropped for server-held history after the forged-turn attack came up, and the author's question about whether the API model would also use `bge-m3` led to one embedding index per provider. The author also pushed back on putting the whole manual in the prompt, which is why retrieval is a tool.
+2. **Glossary and ADRs, written as decisions were made.** [`GLOSSARY.md`](GLOSSARY.md) fixed the vocabulary (Customer vs Visitor, List Price vs Promotional Price, Conversation, Complaint) and kept it consistent across the prompt, code, tests and UI. The three decisions that are hard to reverse became [ADRs](docs/adr/). The agreed design was saved as [`docs/design.md`](docs/design.md).
+3. **Spec, then tickets.** The design was turned into a product spec and then into 13 vertical-slice tickets (backend skeleton, model registry, streaming chat, chat UI, prices, Orders, policy retrieval, robustness, Complaints, prompt hardening and eval, and this documentation). Each ticket was a thin end-to-end slice with acceptance criteria and its dependencies. They were kept as markdown files in the repo.
+4. **Implementation ticket by ticket, test first.** For each ticket the agent used a red-green-refactor loop at agreed seams (the provider registry is the one tests replace with fakes, so no test calls a model), ran the type checker, linter and single test files as it went and the full suite at the end, and made small atomic commits. After each ticket a separate review step checked the change against the repo's standards and against the ticket's spec. The author gave review comments between tickets (for instance moving queries into constants, and adding typed row models), which the agent applied in follow-up commits.
+5. **Diagnosis and eval-driven prompt work.** When something broke, the agent was asked to reproduce and diagnose before changing anything: the Ollama out-of-memory crash on WSL2, reasoning leaking into answers, a regression where `qwen3:4b` overthought and ignored tools, an OpenAI rate-limit error, and why the eval reported a missing Complaint tool call (the eval turned out to be right). The prompt was tuned by running the eval, reading the transcripts and fixing what drifted, rather than by guessing.
+6. **A written trail.** The repo's `AGENTS.md` makes the agent append a log entry for every session and every prompt (kept locally and git-ignored), which is how decisions and their reasons stayed traceable across sessions.
+
+What this was good for: fast, consistent scaffolding, many small refactors, writing tests and keeping a large design coherent across many sessions. What needed the human: the product decisions, noticing when a model's behaviour was wrong in a way the checks did not catch, and deciding which trade-offs to document instead of fixing. Everything the agent produced was run, not just read: the tests, the type checker and the eval were the evidence, not the agent's own claims.
+
+## Example conversations
+
+Real transcripts from the eval run described above, with tool calls and results inline. See [`docs/examples/README.md`](docs/examples/README.md) for what each one shows.
+
+1. [Returning a delivered Order](docs/examples/01-return-delivered-order.md) (`qwen3:4b`): reads the Order, searches the return policy and compares the dates with the reference date.
+2. [Store address](docs/examples/02-store-address-policy.md) (`qwen3:4b`): the answer comes from policy retrieval.
+3. [Filing a Complaint](docs/examples/03-complaint-confirmation.md) (`gpt-6-luna`): summary, confirmation, then the tool call and the real protocol number.
+4. [Accessory request](docs/examples/04-accessory-redirect.md) (`qwen3:4b`): politely redirected.
+5. [Asking for the instructions](docs/examples/05-jailbreak-prompt-leak.md) (`qwen3:4b`): declined.
+6. [A failure kept on purpose](docs/examples/06-complaint-confirmation-qwen3-4b-failure.md) (`qwen3:4b`): invents a protocol number without calling the tool.
+
 ## Database Schema
 
 ### ER Diagram
