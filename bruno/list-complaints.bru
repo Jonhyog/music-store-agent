@@ -1,0 +1,20 @@
+meta {
+  name: List complaints
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/complaints?page=1&pageSize=20
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  pageSize: 20
+}
+
+docs {
+  Staff view: every Complaint, newest first. Ignores x-customer-id.
+}

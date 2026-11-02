@@ -1,0 +1,21 @@
+meta {
+  name: List complaints - filter by Customer
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/complaints?page=1&pageSize=20&customerId=3
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  pageSize: 20
+  customerId: 3
+}
+
+docs {
+  Only the Complaints of one Customer. An unknown customerId returns an empty list.
+}
