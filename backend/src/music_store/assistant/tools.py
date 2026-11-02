@@ -1,11 +1,12 @@
 """Tools the model can call. The Customer is read from the runtime context, never an argument."""
 
 import sqlite3
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from typing import Any
 
 from langchain.tools import ToolRuntime, tool
+from pydantic import BaseModel
 
 from music_store.assistant import catalog
 from music_store.assistant.context import AgentContext
@@ -19,6 +20,10 @@ def _connection(runtime: ToolRuntime[AgentContext]) -> Iterator[sqlite3.Connecti
         yield conn
     finally:
         conn.close()
+
+
+def _dump(models: Sequence[BaseModel]) -> list[dict[str, Any]]:
+    return [model.model_dump(mode="json") for model in models]
 
 
 @tool
@@ -41,13 +46,14 @@ def search_products(
     there is no Promotion), stock quantity, Catalog Status and specs.
     """
     with _connection(runtime) as conn:
-        return catalog.search_products(
+        products = catalog.search_products(
             conn,
             query=query,
             category=category,
             max_price_brl=max_price_brl,
             in_stock_only=in_stock_only,
         )
+    return _dump(products)
 
 
 @tool
@@ -57,14 +63,15 @@ def get_product(
     """Get one Product by name or id: prices (list, promotional, PIX), stock, status and specs."""
     with _connection(runtime) as conn:
         product = catalog.get_product(conn, product_id=product_id, name=name)
-    return product or {"error": "Product not found."}
+    return product.model_dump(mode="json") if product else {"error": "Product not found."}
 
 
 @tool
 def list_categories(runtime: ToolRuntime[AgentContext]) -> list[dict[str, Any]]:
     """List the store's Categories (families of instruments)."""
     with _connection(runtime) as conn:
-        return catalog.list_categories(conn)
+        categories = catalog.list_categories(conn)
+    return _dump(categories)
 
 
 @tool
@@ -77,7 +84,8 @@ def list_active_promotions(
         category: Optional Category name to restrict the listing, e.g. "Violões".
     """
     with _connection(runtime) as conn:
-        return catalog.list_active_promotions(conn, category=category)
+        products = catalog.list_active_promotions(conn, category=category)
+    return _dump(products)
 
 
 CATALOG_TOOLS = [search_products, get_product, list_categories, list_active_promotions]
