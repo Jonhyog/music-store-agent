@@ -12,6 +12,8 @@ It has three parts:
 
 Read-only source data lives in `data/` (CSVs and the Policy Manual PDF). Domain vocabulary is in [`GLOSSARY.md`](GLOSSARY.md), the agreed design is in [`docs/design.md`](docs/design.md) and the hard-to-reverse decisions are in [`docs/adr/`](docs/adr/).
 
+**Contents:** [Setup](#setup) · [Technical decisions](#technical-decisions) · [Assumptions](#assumptions) · [Known data problems](#known-data-problems) · [Known limitations](#known-limitations) · [Eval findings](#eval-findings) · [More time](#what-we-would-do-with-more-time) · [AI coding assistants](#how-ai-coding-assistants-were-used) · [Example conversations](#example-conversations) · [Database schema](#database-schema)
+
 ## Setup
 
 ### Prerequisites
