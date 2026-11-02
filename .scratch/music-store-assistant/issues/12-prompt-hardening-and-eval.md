@@ -8,8 +8,8 @@ Parent spec: `.scratch/music-store-assistant/spec.md`
 
 **Status:** ready-for-agent
 
-- [ ] An opt-in eval script, outside pytest, drives the running server over HTTP for each available model and saves transcripts that include tool calls.
-- [ ] Scenarios:
+- [x] An opt-in eval script, outside pytest, drives the running server over HTTP for each available model (or one, with `--model`) and saves transcripts that include tool calls.
+- [x] Scenarios:
   - Violões up to R$1000 (catalog).
   - Store address (policy).
   - Takamine GD20 price (pricing).
@@ -20,7 +20,7 @@ Parent spec: `.scratch/music-store-assistant/spec.md`
   - Asking for another Customer's Order.
   - The Complaint flow, checking confirmation before filing.
   - A Visitor trying to complain.
-- [ ] Checks are behavioural (expected tool called or not called, refusal present, confirmation before filing), not exact wording. The script reports pass/fail per scenario and model.
-- [ ] The system prompt gets a final pass on scope, Accessories with partner-store suggestion, off-topic decline, jailbreak resistance, never discussing other Customers, and the full section order from the spec.
-- [ ] 3–5 example conversations are saved in the repo, covering varied scenarios, with at least one consulting live data or applying a policy rule.
-- [ ] If the eval shows the default local model drifting off scope, record it as a known limitation, with an input classifier as the "more time" item.
+- [x] Checks are behavioural (expected tool called or not called, refusal present, confirmation before filing), not exact wording. The script reports pass/fail per scenario and model.
+- [x] The system prompt gets a final pass on scope, Accessories with partner-store suggestion, off-topic decline, jailbreak resistance, never discussing other Customers, and the full section order from the spec.
+- [x] 3–5 example conversations are saved in the repo, covering varied scenarios, with at least one consulting live data or applying a policy rule.
+- [x] If the eval shows the default local model drifting off scope, record it as a known limitation, with an input classifier as the "more time" item.
