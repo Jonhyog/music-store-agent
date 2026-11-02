@@ -62,7 +62,13 @@
       "cancel": "Manter atual",
       "confirm": "Trocar e recomeçar"
     },
-    "modelChanged": "Modelo alterado para {{model}}"
+    "modelChanged": "Modelo alterado para {{model}}",
+    "reasoning": {
+      "thinking": "Pensando...",
+      "thoughtBriefly": "Pensou por alguns segundos",
+      "thoughtFor_one": "Pensou por {{count}} segundo",
+      "thoughtFor_other": "Pensou por {{count}} segundos"
+    }
   },
   "complaints": {
     "placeholder": "As reclamações estarão disponíveis em breve."

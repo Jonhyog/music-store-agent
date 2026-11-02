@@ -14,6 +14,12 @@ import {
   MessageResponse,
 } from "@/components/ai-elements/message"
 import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@/components/ai-elements/reasoning"
+import { Shimmer } from "@/components/ai-elements/shimmer"
+import {
   Tool,
   ToolContent,
   ToolHeader,
@@ -47,6 +53,27 @@ function ModelDividers({
 }
 
 function MessagePart({ part }: { part: UIMessage["parts"][number] }) {
+  const { t } = useTranslation()
+  if (part.type === "reasoning") {
+    return (
+      <Reasoning isStreaming={part.state === "streaming"}>
+        <ReasoningTrigger
+          getThinkingMessage={(isStreaming, duration) =>
+            isStreaming || duration === 0 ? (
+              <Shimmer duration={1}>{t("chat.reasoning.thinking")}</Shimmer>
+            ) : (
+              <p>
+                {duration === undefined
+                  ? t("chat.reasoning.thoughtBriefly")
+                  : t("chat.reasoning.thoughtFor", { count: duration })}
+              </p>
+            )
+          }
+        />
+        <ReasoningContent>{part.text}</ReasoningContent>
+      </Reasoning>
+    )
+  }
   if (part.type === "text") {
     return <MessageResponse>{part.text}</MessageResponse>
   }

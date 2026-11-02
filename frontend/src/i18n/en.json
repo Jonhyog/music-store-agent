@@ -62,7 +62,13 @@
       "cancel": "Keep current",
       "confirm": "Switch and start over"
     },
-    "modelChanged": "Switched to {{model}}"
+    "modelChanged": "Switched to {{model}}",
+    "reasoning": {
+      "thinking": "Thinking...",
+      "thoughtBriefly": "Thought for a few seconds",
+      "thoughtFor_one": "Thought for {{count}} second",
+      "thoughtFor_other": "Thought for {{count}} seconds"
+    }
   },
   "complaints": {
     "placeholder": "Complaints will be available soon."
