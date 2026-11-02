@@ -49,7 +49,17 @@
       }
     },
     "scrollToBottom": "Ir para a mais recente",
-    "clear": "Limpar conversa"
+    "clear": "Limpar conversa",
+    "suggestions": {
+      "catalog": [
+        "Quais violões vocês têm até R$1000?",
+        "Qual é o endereço da loja?",
+        "Quanto custa o Takamine GD20?"
+      ],
+      "orders": [
+        "Quero devolver um pedido. Como faço?"
+      ]
+    }
   },
   "complaints": {
     "placeholder": "As reclamações estarão disponíveis em breve."

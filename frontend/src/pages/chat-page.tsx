@@ -11,6 +11,7 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input"
 import { useChatSession } from "@/features/chat/chat-context"
+import { StarterSuggestions } from "@/features/chat/starter-suggestions"
 import { MessageList } from "@/features/chat/message-list"
 
 export function ChatPage() {
@@ -22,7 +23,7 @@ export function ChatPage() {
       <MessageList
         messages={messages}
         hasError={status === "error"}
-        empty={null}
+        empty={<StarterSuggestions onPick={send} />}
       />
       <PromptInput
         onSubmit={({ text }) => {
