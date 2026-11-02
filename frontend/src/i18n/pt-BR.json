@@ -48,7 +48,8 @@
         "output-error": "Erro"
       }
     },
-    "scrollToBottom": "Ir para a mais recente"
+    "scrollToBottom": "Ir para a mais recente",
+    "clear": "Limpar conversa"
   },
   "complaints": {
     "placeholder": "As reclamações estarão disponíveis em breve."

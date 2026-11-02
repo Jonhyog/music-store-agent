@@ -48,7 +48,8 @@
         "output-error": "Error"
       }
     },
-    "scrollToBottom": "Scroll to latest"
+    "scrollToBottom": "Scroll to latest",
+    "clear": "Clear chat"
   },
   "complaints": {
     "placeholder": "Complaints will be available soon."

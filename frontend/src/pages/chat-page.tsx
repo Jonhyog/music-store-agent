@@ -1,4 +1,7 @@
+import { Trash2Icon } from "lucide-react"
 import { useTranslation } from "react-i18next"
+
+import { Button } from "@/components/ui/button"
 
 import {
   PromptInput,
@@ -12,7 +15,7 @@ import { MessageList } from "@/features/chat/message-list"
 
 export function ChatPage() {
   const { t } = useTranslation()
-  const { messages, status, isStreaming, send } = useChatSession()
+  const { messages, status, isStreaming, send, clear } = useChatSession()
 
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-4">
@@ -29,7 +32,17 @@ export function ChatPage() {
         <PromptInputBody>
           <PromptInputTextarea placeholder={t("chat.inputPlaceholder")} />
         </PromptInputBody>
-        <PromptInputFooter className="justify-end">
+        <PromptInputFooter className="justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={messages.length === 0}
+            onClick={clear}
+          >
+            <Trash2Icon />
+            {t("chat.clear")}
+          </Button>
           <PromptInputSubmit
             status={status}
             disabled={isStreaming}
