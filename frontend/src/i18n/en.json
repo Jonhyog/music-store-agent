@@ -102,8 +102,7 @@
       "service": "Service",
       "payment": "Payment",
       "other": "Other"
-    },
-    "placeholder": "Complaints will be available soon."
+    }
   },
   "notFound": {
     "title": "Page not found",

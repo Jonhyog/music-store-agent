@@ -102,8 +102,7 @@
       "service": "Atendimento",
       "payment": "Pagamento",
       "other": "Outro"
-    },
-    "placeholder": "As reclamações estarão disponíveis em breve."
+    }
   },
   "notFound": {
     "title": "Página não encontrada",
