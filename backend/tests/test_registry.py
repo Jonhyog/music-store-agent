@@ -5,6 +5,7 @@ from langchain_core.tools import tool
 
 from fakes import FakeChatModel, FakeEmbeddings
 from music_store.app import create_app
+from music_store.providers import ProviderRegistry
 from music_store.settings import Settings
 
 
@@ -65,3 +66,8 @@ def test_blank_openai_key_marks_api_model_unavailable(settings):
         models = {m["id"]: m for m in c.get("/models").json()["models"]}
     assert models["gpt-5.6-luna"]["available"] is False
     assert models["qwen3:4b"]["available"] is False
+
+
+def test_ollama_models_keep_thinking_on_so_reasoning_stays_out_of_the_answer(settings):
+    model = ProviderRegistry(settings).chat_model("qwen3:4b")
+    assert model.reasoning is True

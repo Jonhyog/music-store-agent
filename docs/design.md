@@ -22,7 +22,7 @@ Agreed design for the customer-service Assistant prototype described in `desafio
 
 ## Models
 
-- The allowlist is defined in config: `qwen3:4b` (default, thinking off), `qwen3:8b` (Ollama), and `gpt-5.6-luna` (OpenAI).
+- The allowlist is defined in config: `qwen3:4b` (default), `qwen3:8b` (Ollama), and `gpt-5.6-luna` (OpenAI).
 - `GET /models` returns `{ models: [{id, provider, label, available, default}] }` with no pagination. `available` reflects whether the provider can be reached or has an API key.
 - A missing `x-model` falls back to the default from config.
 
@@ -54,7 +54,7 @@ Agreed design for the customer-service Assistant prototype described in `desafio
 
 - Errors that happen before streaming starts are regular HTTP errors (400, 409, 422, 503).
 - The stream uses the Vercel AI SDK UI message stream protocol (header `x-vercel-ai-ui-message-stream: v1`). Event types: `start`, `text-start`, `text-delta`, `text-end`, `tool-input-available`, `tool-output-available`, `error`, `finish`, `[DONE]`.
-- An Adapter converts LangGraph `astream` output into this protocol. Tool calls are streamed with their full arguments and results. qwen3 runs with thinking off, so there are no reasoning parts.
+- An Adapter converts LangGraph `astream` output into this protocol. Tool calls are streamed with their full arguments and results. qwen3 runs with thinking on so Ollama separates the reasoning from the answer; the Adapter drops it, so there are no reasoning parts.
 
 ## Data
 
