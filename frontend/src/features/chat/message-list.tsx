@@ -1,3 +1,4 @@
+import { Fragment } from "react"
 import { getToolName, isToolUIPart, type UIMessage } from "ai"
 import { useTranslation } from "react-i18next"
 
@@ -19,6 +20,31 @@ import {
   ToolInput,
   ToolOutput,
 } from "@/components/ai-elements/tool"
+
+import type { ModelChange } from "./chat-context"
+
+function ModelDividers({
+  changes,
+  atIndex,
+}: {
+  changes: ModelChange[]
+  atIndex: number
+}) {
+  const { t } = useTranslation()
+  return changes
+    .filter((c) => c.atIndex === atIndex)
+    .map((c, i) => (
+      <div
+        key={i}
+        role="separator"
+        className="flex items-center gap-3 text-xs text-muted-foreground"
+      >
+        <span className="h-px flex-1 bg-border" />
+        {t("chat.modelChanged", { model: c.modelLabel })}
+        <span className="h-px flex-1 bg-border" />
+      </div>
+    ))
+}
 
 function MessagePart({ part }: { part: UIMessage["parts"][number] }) {
   if (part.type === "text") {
@@ -44,10 +70,12 @@ function MessagePart({ part }: { part: UIMessage["parts"][number] }) {
 
 export function MessageList({
   messages,
+  modelChanges,
   hasError,
   empty,
 }: {
   messages: UIMessage[]
+  modelChanges: ModelChange[]
   hasError: boolean
   empty: React.ReactNode
 }) {
@@ -63,15 +91,21 @@ export function MessageList({
             {empty}
           </ConversationEmptyState>
         ) : (
-          messages.map((message) => (
-            <Message key={message.id} from={message.role}>
-              <MessageContent>
-                {message.parts.map((part, i) => (
-                  <MessagePart key={i} part={part} />
-                ))}
-              </MessageContent>
-            </Message>
-          ))
+          <>
+            {messages.map((message, index) => (
+              <Fragment key={message.id}>
+                <ModelDividers changes={modelChanges} atIndex={index} />
+                <Message from={message.role}>
+                  <MessageContent>
+                    {message.parts.map((part, i) => (
+                      <MessagePart key={i} part={part} />
+                    ))}
+                  </MessageContent>
+                </Message>
+              </Fragment>
+            ))}
+            <ModelDividers changes={modelChanges} atIndex={messages.length} />
+          </>
         )}
         {hasError && (
           <p role="alert" className="text-sm text-destructive">

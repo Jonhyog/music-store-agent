@@ -17,12 +17,14 @@ import { MessageList } from "@/features/chat/message-list"
 
 export function ChatPage() {
   const { t } = useTranslation()
-  const { messages, status, isStreaming, send, clear } = useChatSession()
+  const { messages, modelChanges, status, isStreaming, send, clear } =
+    useChatSession()
 
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-4">
       <MessageList
         messages={messages}
+        modelChanges={modelChanges}
         hasError={status === "error"}
         empty={<StarterSuggestions onPick={send} />}
       />

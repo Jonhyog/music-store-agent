@@ -8,8 +8,12 @@ import { useModel } from "@/features/models/model-context"
 
 import { createChatTransport, deleteConversation } from "./transport"
 
+/** A model switch mid-Conversation, shown before the message at `atIndex`. */
+export type ModelChange = { atIndex: number; modelLabel: string }
+
 type ChatContextValue = {
   messages: UIMessage[]
+  modelChanges: ModelChange[]
   status: ChatStatus
   isStreaming: boolean
   send: (text: string) => void
@@ -27,7 +31,7 @@ const ChatContext = createContext<ChatContextValue | null>(null)
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { customer, setCustomer, identityHeaders } = useIdentity()
-  const { modelHeaders } = useModel()
+  const { models, modelId, modelHeaders } = useModel()
 
   const [{ transport, setHeaders }] = useState(createChatTransport)
   useEffect(() => {
@@ -43,6 +47,20 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     transport,
   })
 
+  const [modelChanges, setModelChanges] = useState<ModelChange[]>([])
+  const [seenModelId, setSeenModelId] = useState(modelId)
+  if (modelId !== seenModelId) {
+    setSeenModelId(modelId)
+    const label = models.find((m) => m.id === modelId)?.label
+    // The first resolved model is not a switch, and neither is one before any message.
+    if (seenModelId !== null && label && messages.length > 0) {
+      setModelChanges([
+        ...modelChanges,
+        { atIndex: messages.length, modelLabel: label },
+      ])
+    }
+  }
+
   const [pendingCustomer, setPendingCustomer] =
     useState<ChatContextValue["pendingCustomer"]>(null)
 
@@ -51,6 +69,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       void stop()
       void deleteConversation(conversationId)
       setConversationId(crypto.randomUUID())
+      setModelChanges([])
     }
     // A Conversation is bound to one identity, so a new Customer means a new Conversation.
     const switchCustomer = (next: Customer | null) => {
@@ -59,6 +78,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
     return {
       messages,
+      modelChanges,
       status,
       isStreaming: status === "submitted" || status === "streaming",
       send: (text) => void sendMessage({ text }),
@@ -77,6 +97,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [
     messages,
+    modelChanges,
     status,
     sendMessage,
     stop,

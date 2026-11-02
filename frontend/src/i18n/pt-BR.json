@@ -65,7 +65,8 @@
       "description": "Trocar para {{name}} inicia uma nova conversa. A atual será apagada.",
       "cancel": "Manter atual",
       "confirm": "Trocar e recomeçar"
-    }
+    },
+    "modelChanged": "Modelo alterado para {{model}}"
   },
   "complaints": {
     "placeholder": "As reclamações estarão disponíveis em breve."

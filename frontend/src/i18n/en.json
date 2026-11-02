@@ -65,7 +65,8 @@
       "description": "Switching to {{name}} starts a new conversation. The current one will be cleared.",
       "cancel": "Keep current",
       "confirm": "Switch and start over"
-    }
+    },
+    "modelChanged": "Switched to {{model}}"
   },
   "complaints": {
     "placeholder": "Complaints will be available soon."
