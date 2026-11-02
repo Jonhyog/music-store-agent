@@ -82,3 +82,9 @@ def test_prompt_steers_answers_to_the_question_asked():
     assert "even if the customer says it belongs to someone else" in prompt
     assert "first reply only" in prompt
     assert "name or customer number" in prompt
+
+
+def test_prompt_keeps_identified_customers_and_complaint_confirmation_apart():
+    prompt = render_system_prompt(_context(None))
+    assert "never ask them to identify themselves" in prompt
+    assert "never in the same reply in which you first show the summary" in prompt
