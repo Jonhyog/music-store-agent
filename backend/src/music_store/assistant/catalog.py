@@ -3,9 +3,11 @@
 import json
 import sqlite3
 import unicodedata
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
 DEFAULT_SEARCH_LIMIT = 10
+PIX_DISCOUNT_PERCENT = 5
 
 PRODUCTS_QUERY = """
     SELECT p.product_id, p.name, c.name AS category, p.price_brl AS list_price_brl,
@@ -27,8 +29,49 @@ def _product(row: sqlite3.Row) -> dict[str, Any]:
     return product
 
 
+def _best_active_promotions(conn: sqlite3.Connection) -> dict[int, dict[str, Any]]:
+    """Active Promotion per Product; the highest discount wins when several are active."""
+    rows = conn.execute(
+        """
+        SELECT product_id, description AS campaign, discount_percent
+        FROM promotions
+        WHERE is_active = 1
+        ORDER BY product_id, discount_percent DESC, promotion_id
+        """
+    )
+    best: dict[int, dict[str, Any]] = {}
+    for row in rows:
+        best.setdefault(
+            row["product_id"],
+            {"campaign": row["campaign"], "discount_percent": row["discount_percent"]},
+        )
+    return best
+
+
+def _discounted(list_price: float, percent: float) -> float:
+    price = Decimal(str(list_price)) * (100 - Decimal(str(percent))) / 100
+    return float(price.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+def _with_prices(product: dict[str, Any], promotion: dict[str, Any] | None) -> dict[str, Any]:
+    """Add the active Promotion and computed prices. PIX never stacks on a Promotion."""
+    list_price = product["list_price_brl"]
+    product["promotion"] = promotion
+    if promotion:
+        product["promotional_price_brl"] = _discounted(list_price, promotion["discount_percent"])
+        product["pix_price_brl"] = None
+    else:
+        product["promotional_price_brl"] = None
+        product["pix_price_brl"] = _discounted(list_price, PIX_DISCOUNT_PERCENT)
+    return product
+
+
 def _all_products(conn: sqlite3.Connection) -> list[dict[str, Any]]:
-    return [_product(row) for row in conn.execute(PRODUCTS_QUERY)]
+    promotions = _best_active_promotions(conn)
+    return [
+        _with_prices(_product(row), promotions.get(row["product_id"]))
+        for row in conn.execute(PRODUCTS_QUERY)
+    ]
 
 
 def search_products(

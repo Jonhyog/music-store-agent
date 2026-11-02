@@ -77,3 +77,33 @@ def test_list_categories(conn):
     categories = list_categories(conn)
     assert [c["name"] for c in categories][:2] == ["Guitarras", "Baixos"]
     assert len(categories) == 9
+
+
+def test_product_with_active_promotion_has_promotional_price_and_no_pix(conn):
+    product = get_product(conn, product_id=127)
+    assert product["promotion"] == {"campaign": "Oferta Especial", "discount_percent": 10}
+    assert product["promotional_price_brl"] == round(product["list_price_brl"] * 0.9, 2)
+    assert product["pix_price_brl"] is None
+
+
+def test_product_without_promotion_has_pix_price(conn):
+    product = get_product(conn, product_id=81)
+    assert product["promotion"] is None
+    assert product["promotional_price_brl"] is None
+    assert product["pix_price_brl"] == 569.91  # 599.90 - 5%
+
+
+def test_inactive_promotions_are_ignored(conn):
+    product = get_product(conn, product_id=102)  # only has an inactive Black Friday
+    assert product["promotion"] is None
+    assert product["pix_price_brl"] == round(product["list_price_brl"] * 0.95, 2)
+
+
+def test_highest_active_discount_wins(conn):
+    conn.executemany(
+        "INSERT INTO promotions VALUES (?, ?, ?, ?, ?)",
+        [(100, 81, 10, "Menor", 1), (101, 81, 30, "Maior", 1), (102, 81, 50, "Inativa", 0)],
+    )
+    product = get_product(conn, product_id=81)
+    assert product["promotion"] == {"campaign": "Maior", "discount_percent": 30}
+    assert product["promotional_price_brl"] == 419.93
