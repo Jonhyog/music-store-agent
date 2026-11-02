@@ -1,0 +1,23 @@
+meta {
+  name: Chat - Orders as Customer (stream)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/chat
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  x-customer-id: 3
+}
+
+body:json {
+  {
+    "conversation_id": "5c1e7a90-2d4b-4f6a-9b83-1e0d7c4a8f33",
+    "message": "Qual o status dos meus pedidos? O pedido 1 já chegou? Ainda posso devolver?"
+  }
+}
