@@ -71,3 +71,9 @@ def test_blank_openai_key_marks_api_model_unavailable(settings):
 def test_ollama_models_keep_thinking_on_so_reasoning_stays_out_of_the_answer(settings):
     model = ProviderRegistry(settings).chat_model("qwen3:4b")
     assert model.reasoning is True
+
+
+def test_ollama_models_set_context_window_and_sampling(settings):
+    model = ProviderRegistry(settings).chat_model("qwen3:4b")
+    assert model.num_ctx == 16384
+    assert (model.temperature, model.top_p, model.top_k) == (0.6, 0.95, 20)

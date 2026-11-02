@@ -18,6 +18,11 @@ OLLAMA_EMBEDDING_MODEL = "bge-m3"
 OPENAI_EMBEDDING_MODEL = "text-embedding-3-small"
 AVAILABILITY_TIMEOUT_SECONDS = 1.0
 
+OLLAMA_NUM_CTX = 16384
+OLLAMA_TEMPERATURE = 0.6
+OLLAMA_TOP_P = 0.95
+OLLAMA_TOP_K = 20
+
 
 @dataclass(frozen=True)
 class ModelSpec:
@@ -72,8 +77,21 @@ class ProviderRegistry:
             return ChatOpenAI(model=spec.id, api_key=self.settings.openai_api_key)
         # Thinking stays on: with it off, Ollama's qwen3 template leaves the model inside an
         # unclosed <think> block and the reasoning leaks into the answer. With it on, Ollama
-        # separates it into `reasoning_content`, which the stream adapter forwards as reasoning parts.
-        return ChatOllama(model=spec.id, base_url=self.settings.ollama_base_url, reasoning=True)
+        # separates it into `reasoning_content`, which the stream adapter forwards as reasoning
+        # parts.
+        #
+        # `num_ctx` is explicit because Ollama's small default silently truncates the start of
+        # the request (the system prompt) once tool results are added. The sampling values are
+        # Qwen's recommended thinking-mode settings; greedy decoding makes it loop in thought.
+        return ChatOllama(
+            model=spec.id,
+            base_url=self.settings.ollama_base_url,
+            reasoning=True,
+            num_ctx=OLLAMA_NUM_CTX,
+            temperature=OLLAMA_TEMPERATURE,
+            top_p=OLLAMA_TOP_P,
+            top_k=OLLAMA_TOP_K,
+        )
 
     def embeddings(self, model_id: str) -> Embeddings:
         spec = self._require(model_id)
