@@ -17,6 +17,15 @@ PRODUCTS_QUERY = """
     ORDER BY p.product_id
 """
 
+ACTIVE_PROMOTIONS_QUERY = """
+    SELECT product_id, description AS campaign, discount_percent
+    FROM promotions
+    WHERE is_active = 1
+    ORDER BY product_id, discount_percent DESC, promotion_id
+"""
+
+CATEGORIES_QUERY = "SELECT category_id, name, description FROM categories ORDER BY category_id"
+
 
 def _normalize(text: str) -> str:
     decomposed = unicodedata.normalize("NFKD", text.casefold())
@@ -31,14 +40,7 @@ def _product(row: sqlite3.Row) -> dict[str, Any]:
 
 def _best_active_promotions(conn: sqlite3.Connection) -> dict[int, dict[str, Any]]:
     """Active Promotion per Product; the highest discount wins when several are active."""
-    rows = conn.execute(
-        """
-        SELECT product_id, description AS campaign, discount_percent
-        FROM promotions
-        WHERE is_active = 1
-        ORDER BY product_id, discount_percent DESC, promotion_id
-        """
-    )
+    rows = conn.execute(ACTIVE_PROMOTIONS_QUERY)
     best: dict[int, dict[str, Any]] = {}
     for row in rows:
         best.setdefault(
@@ -123,10 +125,7 @@ def get_product(
 
 
 def list_categories(conn: sqlite3.Connection) -> list[dict[str, Any]]:
-    rows = conn.execute(
-        "SELECT category_id, name, description FROM categories ORDER BY category_id"
-    )
-    return [dict(row) for row in rows]
+    return [dict(row) for row in conn.execute(CATEGORIES_QUERY)]
 
 
 def list_active_promotions(
