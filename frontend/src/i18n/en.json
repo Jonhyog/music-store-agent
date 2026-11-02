@@ -33,7 +33,22 @@
     "emptyDescription": "Ask about instruments, prices, the store, or your orders.",
     "inputPlaceholder": "Type your question...",
     "send": "Send",
-    "error": "Something went wrong while answering. Please try again."
+    "error": "Something went wrong while answering. Please try again.",
+    "tool": {
+      "parameters": "Parameters",
+      "result": "Result",
+      "error": "Error",
+      "status": {
+        "approval-requested": "Awaiting approval",
+        "approval-responded": "Responded",
+        "input-available": "Running",
+        "input-streaming": "Pending",
+        "output-available": "Completed",
+        "output-denied": "Denied",
+        "output-error": "Error"
+      }
+    },
+    "scrollToBottom": "Scroll to latest"
   },
   "complaints": {
     "placeholder": "Complaints will be available soon."

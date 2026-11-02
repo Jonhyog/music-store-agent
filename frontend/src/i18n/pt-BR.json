@@ -33,7 +33,22 @@
     "emptyDescription": "Pergunte sobre instrumentos, preços, a loja ou seus pedidos.",
     "inputPlaceholder": "Digite sua pergunta...",
     "send": "Enviar",
-    "error": "Algo deu errado ao responder. Tente novamente."
+    "error": "Algo deu errado ao responder. Tente novamente.",
+    "tool": {
+      "parameters": "Parâmetros",
+      "result": "Resultado",
+      "error": "Erro",
+      "status": {
+        "approval-requested": "Aguardando aprovação",
+        "approval-responded": "Respondido",
+        "input-available": "Executando",
+        "input-streaming": "Pendente",
+        "output-available": "Concluído",
+        "output-denied": "Negado",
+        "output-error": "Erro"
+      }
+    },
+    "scrollToBottom": "Ir para a mais recente"
   },
   "complaints": {
     "placeholder": "As reclamações estarão disponíveis em breve."

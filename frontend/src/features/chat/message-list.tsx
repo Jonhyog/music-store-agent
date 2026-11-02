@@ -79,7 +79,7 @@ export function MessageList({
           </p>
         )}
       </ConversationContent>
-      <ConversationScrollButton />
+      <ConversationScrollButton aria-label={t("chat.scrollToBottom")} />
     </Conversation>
   )
 }
