@@ -33,6 +33,9 @@
     "emptyDescription": "Pergunte sobre instrumentos, preços, a loja ou seus pedidos.",
     "inputPlaceholder": "Digite sua pergunta...",
     "send": "Enviar",
+    "stop": "Parar",
+    "interrupted": "Interrompida",
+    "retry": "Tentar novamente",
     "error": "Algo deu errado ao responder. Tente novamente.",
     "tool": {
       "parameters": "Parâmetros",

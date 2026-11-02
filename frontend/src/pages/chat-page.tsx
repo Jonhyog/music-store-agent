@@ -17,15 +17,26 @@ import { MessageList } from "@/features/chat/message-list"
 
 export function ChatPage() {
   const { t } = useTranslation()
-  const { messages, modelChanges, status, isStreaming, send, clear } =
-    useChatSession()
+  const {
+    messages,
+    modelChanges,
+    interruptedIds,
+    status,
+    isStreaming,
+    send,
+    stopReply,
+    retry,
+    clear,
+  } = useChatSession()
 
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col gap-4">
       <MessageList
         messages={messages}
         modelChanges={modelChanges}
+        interruptedIds={interruptedIds}
         hasError={status === "error"}
+        onRetry={retry}
         empty={<StarterSuggestions onPick={send} />}
       />
       <PromptInput
@@ -49,8 +60,8 @@ export function ChatPage() {
           </Button>
           <PromptInputSubmit
             status={status}
-            disabled={isStreaming}
-            aria-label={t("chat.send")}
+            onStop={stopReply}
+            aria-label={isStreaming ? t("chat.stop") : t("chat.send")}
           />
         </PromptInputFooter>
       </PromptInput>

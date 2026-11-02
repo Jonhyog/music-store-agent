@@ -18,6 +18,7 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning"
+import { Button } from "@/components/ui/button"
 import { Shimmer } from "@/components/ai-elements/shimmer"
 import {
   Tool,
@@ -98,12 +99,16 @@ function MessagePart({ part }: { part: UIMessage["parts"][number] }) {
 export function MessageList({
   messages,
   modelChanges,
+  interruptedIds,
   hasError,
+  onRetry,
   empty,
 }: {
   messages: UIMessage[]
   modelChanges: ModelChange[]
+  interruptedIds: ReadonlySet<string>
   hasError: boolean
+  onRetry: () => void
   empty: React.ReactNode
 }) {
   const { t } = useTranslation()
@@ -126,6 +131,11 @@ export function MessageList({
                   {message.parts.map((part, i) => (
                     <MessagePart key={i} part={part} />
                   ))}
+                  {interruptedIds.has(message.id) && (
+                    <p className="text-xs text-muted-foreground italic">
+                      {t("chat.interrupted")}
+                    </p>
+                  )}
                 </MessageContent>
               </Message>
             </Fragment>
@@ -133,16 +143,22 @@ export function MessageList({
           <ModelDividers changes={modelChanges} atIndex={messages.length} />
         </>
       ),
-    [messages, modelChanges, empty, t]
+    [messages, modelChanges, interruptedIds, empty, t]
   )
   return (
     <Conversation>
       <ConversationContent>
         {body}
         {hasError && (
-          <p role="alert" className="text-sm text-destructive">
+          <div
+            role="alert"
+            className="flex items-center gap-3 text-sm text-destructive"
+          >
             {t("chat.error")}
-          </p>
+            <Button type="button" variant="outline" size="sm" onClick={onRetry}>
+              {t("chat.retry")}
+            </Button>
+          </div>
         )}
       </ConversationContent>
       <ConversationScrollButton aria-label={t("chat.scrollToBottom")} />

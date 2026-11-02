@@ -17,6 +17,12 @@ type ChatContextValue = {
   status: ChatStatus
   isStreaming: boolean
   send: (text: string) => void
+  /** Stops the reply being streamed; the partial text stays, marked as interrupted. */
+  stopReply: () => void
+  /** Ids of Assistant messages the person stopped mid-stream. */
+  interruptedIds: ReadonlySet<string>
+  /** Resends the message of a failed reply. */
+  retry: () => void
   /** Ends the current Conversation and starts an empty one. */
   clear: () => void
   /** Switches model, keeping the Conversation and marking the switch in the history. */
@@ -44,11 +50,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [conversationId, setConversationId] = useState(() =>
     crypto.randomUUID()
   )
-  const { messages, status, sendMessage, stop } = useChat({
+  const { messages, status, sendMessage, stop, regenerate } = useChat({
     id: conversationId,
     transport,
   })
 
+  const [interruptedIds, setInterruptedIds] = useState<ReadonlySet<string>>(
+    new Set()
+  )
   const [modelChanges, setModelChanges] = useState<ModelChange[]>([])
   const [pendingCustomer, setPendingCustomer] =
     useState<ChatContextValue["pendingCustomer"]>(null)
@@ -59,6 +68,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       void deleteConversation(conversationId)
       setConversationId(crypto.randomUUID())
       setModelChanges([])
+      setInterruptedIds(new Set())
     }
     // A Conversation is bound to one identity, so a new Customer means a new Conversation.
     const switchCustomer = (next: Customer | null) => {
@@ -71,6 +81,15 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       status,
       isStreaming: status === "submitted" || status === "streaming",
       send: (text) => void sendMessage({ text }),
+      stopReply: () => {
+        const last = messages.at(-1)
+        if (last?.role === "assistant") {
+          setInterruptedIds((ids) => new Set(ids).add(last.id))
+        }
+        void stop()
+      },
+      interruptedIds,
+      retry: () => void regenerate(),
       clear,
       changeModel: (id) => {
         const label = models.find((m) => m.id === id)?.label
@@ -98,9 +117,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   }, [
     messages,
     modelChanges,
+    interruptedIds,
     status,
     sendMessage,
     stop,
+    regenerate,
     conversationId,
     models,
     modelId,

@@ -33,6 +33,9 @@
     "emptyDescription": "Ask about instruments, prices, the store, or your orders.",
     "inputPlaceholder": "Type your question...",
     "send": "Send",
+    "stop": "Stop",
+    "interrupted": "Interrupted",
+    "retry": "Try again",
     "error": "Something went wrong while answering. Please try again.",
     "tool": {
       "parameters": "Parameters",
