@@ -18,12 +18,12 @@ headers {
 body:json {
   {
     "conversation_id": "8b2f6d14-7c3a-4e95-a1d0-4f9e3b7c2a58",
-    "message": "O pedido 1 chegou com a caixa amassada e quero reclamar. Pode registrar? Sim, pode registrar."
+    "message": "O pedido 1 chegou com a caixa amassada e quero reclamar. O que posso fazer?"
   }
 }
 
 docs {
-  The Assistant summarizes the Complaint and asks for confirmation before filing. Send a second
+  The Assistant summarizes the Complaint and asks for confirmation before filing. Then send a second
   message in the same conversation_id (e.g. "Sim, pode registrar") if it asks. It then replies with
   "Protocolo #N" and the 24-business-hour promise. As a Visitor (drop x-customer-id) it sends you to
   the store's WhatsApp and e-mail instead.
