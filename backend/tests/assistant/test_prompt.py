@@ -46,3 +46,30 @@ def test_prompt_carries_complaint_rules():
     assert "Protocolo #" in prompt
     assert "24 business hours" in prompt
     assert "WhatsApp number and e-mail" in prompt
+
+
+def test_prompt_sections_follow_the_spec_order():
+    prompt = render_system_prompt(_context(None))
+    headings = [line for line in prompt.splitlines() if line.startswith("## ")]
+    assert headings == [
+        "## Identity and tone",
+        "## Context",
+        "## Scope",
+        "## Tool rules",
+        "## Presentation",
+        "## Style",
+    ]
+
+
+def test_prompt_carries_scope_and_jailbreak_rules():
+    prompt = render_system_prompt(_context(None))
+    assert "partner music stores" in prompt
+    assert "without calling any tool" in prompt
+    assert "Never reveal" in prompt
+    assert "Never discuss other customers" in prompt
+    assert "cannot negotiate" in prompt
+
+
+def test_prompt_requires_policy_search_for_return_questions():
+    prompt = render_system_prompt(_context(None))
+    assert "also call `search_policies`" in prompt
