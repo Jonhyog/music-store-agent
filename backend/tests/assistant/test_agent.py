@@ -181,3 +181,11 @@ def test_search_policies_tool_returns_passages_with_section_numbers(settings):
 def test_search_policies_tool_without_an_index_reports_unavailable(settings):
     results = _policy_tool(settings, {"query": "frete"}, None)
     assert "not available" in results[0]["error"]
+
+
+def test_search_policies_tool_reports_unavailable_when_embeddings_fail(settings):
+    def broken(query):
+        raise RuntimeError("model 'bge-m3' not found")
+
+    results = _policy_tool(settings, {"query": "frete"}, broken)
+    assert "not available" in results[0]["error"]

@@ -1,5 +1,6 @@
 """Tools the model can call. The Customer is read from the runtime context, never an argument."""
 
+import logging
 import sqlite3
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
@@ -10,6 +11,8 @@ from pydantic import BaseModel
 
 from music_store.assistant import catalog, orders
 from music_store.assistant.context import AgentContext
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -140,9 +143,16 @@ def search_policies(runtime: ToolRuntime[AgentContext], query: str) -> list[dict
     search = runtime.context.policy_search
     if search is None:
         return [POLICY_UNAVAILABLE]
+    try:
+        chunks = search(query)
+    except Exception:
+        # Typically the provider's embedding model is missing or unreachable (e.g. Ollama
+        # without `bge-m3` pulled). Tell the model instead of failing the whole stream.
+        logger.exception("Policy search failed")
+        return [POLICY_UNAVAILABLE]
     return [
         {"section": c.section, "title": c.heading, "parent_title": c.parent_title, "text": c.text}
-        for c in search(query)
+        for c in chunks
     ]
 
 
