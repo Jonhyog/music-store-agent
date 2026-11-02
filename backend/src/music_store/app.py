@@ -12,7 +12,7 @@ from music_store.middleware.customer import CustomerMiddleware
 from music_store.middleware.errors import error_response
 from music_store.middleware.model import ModelMiddleware
 from music_store.providers import ProviderRegistry
-from music_store.routes import chat, customers, models
+from music_store.routes import chat, complaints, customers, models
 from music_store.settings import Settings
 
 
@@ -50,6 +50,7 @@ def create_app(
     )
     app.add_exception_handler(DomainError, _domain_error_handler)
     app.include_router(chat.router)
+    app.include_router(complaints.router)
     app.include_router(customers.router)
     app.include_router(models.router)
     return app
