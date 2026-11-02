@@ -1,0 +1,23 @@
+meta {
+  name: Chat - Customer (stream)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/chat
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  x-customer-id: 1
+}
+
+body:json {
+  {
+    "conversation_id": "0e6a1f7e-3c2d-4a7b-8f41-2b9c5d6e7a22",
+    "message": "Oi! Quais categorias de instrumentos vocês vendem?"
+  }
+}

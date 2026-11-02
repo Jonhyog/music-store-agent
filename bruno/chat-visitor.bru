@@ -1,0 +1,22 @@
+meta {
+  name: Chat - Visitor (stream)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/chat
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "conversation_id": "7b0d3c52-5f0a-4c1e-9d55-0a1f6a3f2b11",
+    "message": "Vocês têm violões clássicos até R$ 1000?"
+  }
+}
