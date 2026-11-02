@@ -1,0 +1,22 @@
+meta {
+  name: Chat - Policy question (stream)
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/chat
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "conversation_id": "5c1e7a90-3b42-4d8f-9e16-2f7a8b0d6c31",
+    "message": "Qual o prazo para devolver um produto comprado online?"
+  }
+}
