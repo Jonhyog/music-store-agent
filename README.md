@@ -210,6 +210,46 @@ The source data has inconsistencies. They are documented and handled in the prom
 
 Not a data problem, but worth knowing: most of the 50 Customers (32) have never placed an Order. That is normal, since they have an account and simply have not bought yet. The Order tools simply return an empty list for them. Only 18 Customers have Orders, so those are the ones to pick when trying the Order flows (for example Customer 3).
 
+## Known limitations
+
+- **No authentication.** The `x-customer-id` header is trusted, so anyone who can reach the API can act as any Customer. The picker in the interface is a demo of identity, not security. What is enforced is the scoping: given a Customer, the Order tools can only return that Customer's Orders.
+- **Conversations are in memory.** A server restart or a page reload loses them. They are also kept in one process, so the backend cannot be scaled to several workers as is.
+- **Complaints are read-only.** The Assistant can file one and staff can list them, but there is no status, update, resolution or deletion. A filed Complaint cannot be corrected from the chat.
+- **No out-of-hours behaviour.** The Assistant does not know whether the store is open. It answers at any time and the 24-business-hour promise for Complaints is the manual's wording, not something it schedules.
+- **Prompt-only guardrails.** Scope limits, the refusal to reveal instructions and the confirm-before-filing rule rely on the model following the prompt. The eval checks them, but a small model can still slip, and no classifier screens the input. Only the Order scoping is enforced in code.
+- **The small local models are not deterministic.** Even with the same prompt, the same scenario can pass in one run and fail in the next.
+- **The Policy Manual conflicts are not resolved**, only answered conservatively (see [Known data problems](#known-data-problems)).
+- **Embedding indexes are rebuilt on every start.** Each is built lazily on its first search, which costs a moment on the first policy question.
+- **Single language per answer, no translation of data.** Catalog and policy text stay in Portuguese. The UI language toggle changes only the interface, not the reply language.
+
+### Eval findings
+
+The eval (`backend/evals`) plays 12 scenarios against each model. In the latest full run:
+
+| Model | Passed |
+|---|---|
+| `qwen3:4b` (default) | 11/12 |
+| `qwen3:8b` | 9/12 |
+| `gpt-6-luna` | 12/12 |
+
+- **`gpt-6-luna` passed everything.** It was the only model to pass the Complaint flow end to end: it summarized, asked "Posso registrar?", waited, and only then called `register_complaint` and reported the real protocol number. Together with its low cost and low reasoning effort, it is the best model here by a clear margin, and the one we would deploy. Qwen stays the default because it is free and runs offline.
+- **The default model fails one scenario worth knowing about.** `qwen3:4b` handled the catalog, pricing, policy, Order, scope and safety scenarios, but after the Customer confirmed a Complaint it did not call `register_complaint` and answered with an invented "Protocolo #12345". The Customer would think a Complaint exists when none does ([example 06](docs/examples/06-complaint-confirmation-qwen3-4b-failure.md)). Prompt-only confirmation is not enough to trust a small model with a write action.
+- **A bigger local model is not automatically better.** `qwen3:8b` scored lower than `qwen3:4b`: it called `register_complaint` before the Customer confirmed, did not give a Visitor the store's WhatsApp number and email, and called an Order tool for a Visitor. A single run is a sample, not a ranking, because both models are non-deterministic.
+- **Fixes that came out of the eval.** Setting the Ollama context window and sampling (a truncated prompt and greedy decoding had degraded the small model), forbidding tool calls written as text, steering answers to the question asked and the right Order tool, and requiring a separate message before a Complaint is filed.
+
+The example conversations in [`docs/examples`](docs/examples/README.md) come from this run.
+
+## What we would do with more time
+
+- **Authentication.** Real login for Customers, so the identity is a verified session and not a header. And staff authentication for the Complaints page, with roles.
+- **A Complaint lifecycle.** Status (open, in progress, resolved), assignment, notes and notifications, plus a way for the Customer to follow up on a protocol from the chat.
+- **Per-Customer model entitlements.** For example, only some Customers or plans get the API model. The model middleware is already the place for it.
+- **An input classifier.** A cheap model that screens each message for scope and jailbreak attempts before it reaches the Assistant, if the eval keeps showing drift.
+- **Persistent Conversations.** A database-backed checkpointer, so history survives restarts and the backend can run several workers, with the same binding and rollback rules.
+- **Persisted embedding indexes**, so the first policy search is not slow, and re-indexing only when the manual changes.
+- **A broader eval.** More scenarios, several runs per scenario to measure flakiness, and a comparison of larger local models.
+- **Confirmation in code.** Enforce "confirm before filing" with a two-step tool or a human-in-the-loop interrupt rather than only the prompt, so even a weak model cannot file a Complaint unconfirmed or fake a protocol number.
+
 ## Database Schema
 
 ### ER Diagram
