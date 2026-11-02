@@ -1,7 +1,16 @@
 {
-  "app": { "storeName": "Empório da Música" },
-  "nav": { "chat": "Chat", "complaints": "Reclamações" },
-  "language": { "label": "Idioma", "toggleTo": "Mudar para inglês", "short": "PT" },
+  "app": {
+    "storeName": "Empório da Música"
+  },
+  "nav": {
+    "chat": "Chat",
+    "complaints": "Reclamações"
+  },
+  "language": {
+    "label": "Idioma",
+    "toggleTo": "Mudar para inglês",
+    "short": "PT"
+  },
   "customer": {
     "label": "Identidade",
     "visitor": "Visitante",
@@ -19,8 +28,16 @@
     "error": "Não foi possível carregar os modelos.",
     "unavailable": "(indisponível)"
   },
-  "chat": { "placeholder": "O chat estará disponível em breve." },
-  "complaints": { "placeholder": "As reclamações estarão disponíveis em breve." },
+  "chat": {
+    "emptyTitle": "Como posso ajudar?",
+    "emptyDescription": "Pergunte sobre instrumentos, preços, a loja ou seus pedidos.",
+    "inputPlaceholder": "Digite sua pergunta...",
+    "send": "Enviar",
+    "error": "Algo deu errado ao responder. Tente novamente."
+  },
+  "complaints": {
+    "placeholder": "As reclamações estarão disponíveis em breve."
+  },
   "notFound": {
     "title": "Página não encontrada",
     "description": "O endereço que você tentou acessar não existe.",

@@ -1,7 +1,16 @@
 {
-  "app": { "storeName": "Empório da Música" },
-  "nav": { "chat": "Chat", "complaints": "Complaints" },
-  "language": { "label": "Language", "toggleTo": "Switch to Portuguese", "short": "EN" },
+  "app": {
+    "storeName": "Empório da Música"
+  },
+  "nav": {
+    "chat": "Chat",
+    "complaints": "Complaints"
+  },
+  "language": {
+    "label": "Language",
+    "toggleTo": "Switch to Portuguese",
+    "short": "EN"
+  },
   "customer": {
     "label": "Identity",
     "visitor": "Visitor",
@@ -19,8 +28,16 @@
     "error": "Could not load models.",
     "unavailable": "(unavailable)"
   },
-  "chat": { "placeholder": "The chat will be available soon." },
-  "complaints": { "placeholder": "Complaints will be available soon." },
+  "chat": {
+    "emptyTitle": "How can I help?",
+    "emptyDescription": "Ask about instruments, prices, the store, or your orders.",
+    "inputPlaceholder": "Type your question...",
+    "send": "Send",
+    "error": "Something went wrong while answering. Please try again."
+  },
+  "complaints": {
+    "placeholder": "Complaints will be available soon."
+  },
   "notFound": {
     "title": "Page not found",
     "description": "The address you tried to open does not exist.",
