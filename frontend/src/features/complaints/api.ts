@@ -1,11 +1,7 @@
 import { API_URL } from "@/lib/config"
 
 export type ComplaintCategory =
-  | "product_defect"
-  | "delivery"
-  | "service"
-  | "payment"
-  | "other"
+  "product_defect" | "delivery" | "service" | "payment" | "other"
 
 export type Complaint = {
   complaint_id: number
