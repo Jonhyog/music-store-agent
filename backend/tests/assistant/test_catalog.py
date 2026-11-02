@@ -2,7 +2,12 @@ import sqlite3
 
 import pytest
 
-from music_store.assistant.catalog import get_product, list_categories, search_products
+from music_store.assistant.catalog import (
+    get_product,
+    list_active_promotions,
+    list_categories,
+    search_products,
+)
 
 
 @pytest.fixture
@@ -107,3 +112,22 @@ def test_highest_active_discount_wins(conn):
     product = get_product(conn, product_id=81)
     assert product["promotion"] == {"campaign": "Maior", "discount_percent": 30}
     assert product["promotional_price_brl"] == 419.93
+
+
+def test_list_active_promotions_returns_only_active_with_prices(conn):
+    promoted = list_active_promotions(conn)
+    assert {p["product_id"] for p in promoted} == {90, 94, 121, 127}
+    assert all(p["promotional_price_brl"] < p["list_price_brl"] for p in promoted)
+    assert all(p["pix_price_brl"] is None for p in promoted)
+
+
+def test_list_active_promotions_filters_by_category(conn):
+    everything = list_active_promotions(conn)
+    category = everything[0]["category"]
+    filtered = list_active_promotions(conn, category=category.upper())
+    assert filtered
+    assert {p["category"] for p in filtered} == {category}
+    assert len(filtered) <= len(everything)
+    assert list_active_promotions(conn, category="Ukuleles") == [
+        p for p in everything if p["category"] == "Ukuleles"
+    ]

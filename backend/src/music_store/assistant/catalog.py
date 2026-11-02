@@ -127,3 +127,16 @@ def list_categories(conn: sqlite3.Connection) -> list[dict[str, Any]]:
         "SELECT category_id, name, description FROM categories ORDER BY category_id"
     )
     return [dict(row) for row in rows]
+
+
+def list_active_promotions(
+    conn: sqlite3.Connection, *, category: str | None = None
+) -> list[dict[str, Any]]:
+    """Products with an active Promotion, optionally within a Category, with computed prices."""
+    wanted_category = _normalize(category).strip() if category else None
+    return [
+        product
+        for product in _all_products(conn)
+        if product["promotion"]
+        and (not wanted_category or wanted_category in _normalize(product["category"] or ""))
+    ]
