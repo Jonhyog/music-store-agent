@@ -37,3 +37,12 @@ def test_prompt_carries_policy_rules():
     assert "more conservative answer" in prompt
     assert "confirming with the store" in prompt or "confirm with the store" in prompt
     assert "from memory" in prompt
+
+
+def test_prompt_carries_complaint_rules():
+    prompt = render_system_prompt(_context(None))
+    assert "`register_complaint`" in prompt
+    assert "only after the customer confirms" in prompt
+    assert "Protocolo #" in prompt
+    assert "24 business hours" in prompt
+    assert "WhatsApp number and e-mail" in prompt
