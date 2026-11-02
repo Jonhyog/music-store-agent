@@ -35,7 +35,7 @@ class ModelSpec:
 MODEL_SPECS: tuple[ModelSpec, ...] = (
     ModelSpec("qwen3:4b", "ollama", "Qwen3 4B (local)"),
     ModelSpec("qwen3:8b", "ollama", "Qwen3 8B (local)"),
-    ModelSpec("gpt-5.6-luna", "openai", "GPT-5.6 Luna (API)"),
+    ModelSpec("gpt-6-luna", "openai", "GPT-6 Luna (API)"),
 )
 
 
@@ -74,7 +74,11 @@ class ProviderRegistry:
     def chat_model(self, model_id: str) -> BaseChatModel:
         spec = self._require(model_id)
         if spec.provider == "openai":
-            return ChatOpenAI(model=spec.id, api_key=self.settings.openai_api_key)
+            return ChatOpenAI(
+                model=spec.id,
+                api_key=self.settings.openai_api_key,
+                reasoning={"effort": "low", "summary": "concise"},
+            )
         # Thinking stays on: with it off, Ollama's qwen3 template leaves the model inside an
         # unclosed <think> block and the reasoning leaks into the answer. With it on, Ollama
         # separates it into `reasoning_content`, which the stream adapter forwards as reasoning
