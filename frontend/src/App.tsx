@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router"
 
 import { AppLayout } from "@/components/layout/app-layout"
-import { ToastProvider } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner"
 import { BackendStatusProvider } from "@/features/backend/backend-status"
 import { ChatProvider } from "@/features/chat/chat-context"
 import { IdentityProvider } from "@/features/customers/identity"
@@ -12,7 +12,8 @@ import { NotFoundPage } from "@/pages/not-found-page"
 
 export function App() {
   return (
-    <ToastProvider>
+    <>
+      <Toaster />
       <BackendStatusProvider>
         <IdentityProvider>
           <ModelProvider>
@@ -30,7 +31,7 @@ export function App() {
           </ModelProvider>
         </IdentityProvider>
       </BackendStatusProvider>
-    </ToastProvider>
+    </>
   )
 }
 

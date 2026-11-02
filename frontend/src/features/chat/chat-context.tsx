@@ -9,7 +9,7 @@ import { useModel } from "@/features/models/model-context"
 import { useTranslation } from "react-i18next"
 
 import { useBackendStatus } from "@/features/backend/backend-status"
-import { useToast } from "@/components/ui/toaster"
+import { toast } from "sonner"
 
 import {
   ChatHttpError,
@@ -72,7 +72,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     crypto.randomUUID()
   )
   const { t } = useTranslation()
-  const { toast } = useToast()
   const { recheck } = useBackendStatus()
   const { messages, status, sendMessage, stop, regenerate } = useChat({
     id: conversationId,
