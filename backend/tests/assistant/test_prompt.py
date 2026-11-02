@@ -26,7 +26,7 @@ def test_prompt_marks_visitors_as_not_identified():
 def test_prompt_carries_order_rules():
     prompt = render_system_prompt(_context(None))
     assert "estimated delivery date is the delivery date" in prompt
-    assert "need to know who they are" in prompt
+    assert "identify themselves as a customer" in prompt
     assert "greet them by first name" in prompt
 
 
@@ -73,3 +73,12 @@ def test_prompt_carries_scope_and_jailbreak_rules():
 def test_prompt_requires_policy_search_for_return_questions():
     prompt = render_system_prompt(_context(None))
     assert "also call `search_policies`" in prompt
+
+
+def test_prompt_steers_answers_to_the_question_asked():
+    prompt = render_system_prompt(_context(None))
+    assert "Answer exactly what was asked" in prompt
+    assert "\\boxed" in prompt
+    assert "even if the customer says it belongs to someone else" in prompt
+    assert "first reply only" in prompt
+    assert "name or customer number" in prompt
