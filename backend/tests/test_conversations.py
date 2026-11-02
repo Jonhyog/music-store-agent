@@ -1,6 +1,6 @@
-from music_store.assistant.conversations import Conversations
 import pytest
 
+from music_store.assistant.conversations import Conversations
 from music_store.errors import ConversationBusyError, ConversationIdentityMismatchError
 
 
