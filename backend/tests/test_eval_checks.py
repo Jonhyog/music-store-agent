@@ -1,5 +1,6 @@
 from evals.checks import (
     asks_confirmation,
+    calls_any_tool,
     calls_tool,
     contains_any,
     does_not_call_tool,
@@ -42,3 +43,9 @@ def test_asks_confirmation_needs_a_question_mark():
 def test_an_errored_reply_fails_every_check():
     errored = Reply(text="ok?", tool_calls=[], error="boom")
     assert "boom" in uses_no_tools()(errored)
+
+
+def test_calls_any_tool_accepts_either_tool():
+    check = calls_any_tool("get_product", "search_products")
+    assert check(_reply("", "search_products")) is None
+    assert "get_product" in check(_reply("", "list_categories"))

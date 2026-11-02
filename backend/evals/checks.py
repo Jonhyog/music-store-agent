@@ -32,6 +32,16 @@ def calls_tool(name: str) -> Check:
 
 
 @_unless_errored
+def calls_any_tool(*names: str) -> Check:
+    def check(reply: Reply) -> str | None:
+        if any(name in reply.tool_names for name in names):
+            return None
+        return f"expected a call to one of: {', '.join(names)}"
+
+    return check
+
+
+@_unless_errored
 def does_not_call_tool(name: str) -> Check:
     return lambda reply: f"must not call {name}" if name in reply.tool_names else None
 
