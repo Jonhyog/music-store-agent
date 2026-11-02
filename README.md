@@ -32,7 +32,7 @@ ollama pull bge-m3      # embeddings for Policy Manual search, local mode
 
 The API model, `gpt-6-luna`, is optional. To enable it, set `OPENAI_API_KEY` in `backend/.env` (next step). Without a key it is shown as unavailable in the interface and the rest works normally. Policy search for the API model uses OpenAI embeddings (`text-embedding-3-small`) and does not need Ollama.
 
-The local models are the default because they are free: the whole project runs on a laptop with no account and no network after the pulls. A small GPU helps. `qwen3:4b` is the lighter of the two.
+The local models are the default because they are free: the whole project runs on a laptop with no sign-up and no network after the pulls. A small GPU helps. `qwen3:4b` is the lighter of the two.
 
 ### 2. Backend
 
@@ -85,7 +85,7 @@ uv run uvicorn music_store.app:app    # in one terminal
 uv run python -m evals                # in another; --model and --scenario narrow it down
 ```
 
-Transcripts and a pass/fail table are saved to `backend/evals/transcripts/<timestamp>/` (git-ignored). The Complaint scenario files a real Complaint, so point the server at a throwaway database. More options are in [`backend/README.md`](backend/README.md#eval).
+Transcripts and a pass/fail table are saved to `backend/evals/transcripts/<timestamp>/` (git-ignored). The Complaint scenario files a real Complaint, so point the server at a throwaway database (`DATABASE_PATH=/tmp/eval.db uv run seed`, then start the server with the same variable). More options are in [`backend/README.md`](backend/README.md#eval).
 
 ### Optional: LangSmith
 
@@ -120,7 +120,7 @@ The tools also do the arithmetic. List Price, Promotional Price, discount percen
 
 ### Models and provider
 
-Three models are allowlisted, and the user picks one in the interface (or with the `x-model` header):
+Three models are allowlisted, and the Customer picks one in the interface (or with the `x-model` header):
 
 | Model | Provider | Role |
 |---|---|---|
@@ -128,7 +128,7 @@ Three models are allowlisted, and the user picks one in the interface (or with t
 | `qwen3:8b` | Ollama (local) | Larger local option. |
 | `gpt-6-luna` | OpenAI (API) | Optional, used with a key. |
 
-Qwen3 is the default because it is free: nobody needs an account, a key or a connection to run and review the project, and no customer data leaves the machine. Qwen3 also supports tool calling and a thinking mode. Thinking stays on, because with it off Ollama's template leaves the model inside an unclosed `<think>` block and the reasoning leaks into the answer. The stream adapter forwards the reasoning as separate parts, and the chat shows it in a collapsed block. Ollama gets an explicit 16k context window (its small default silently cuts the start of the request, the system prompt, once tool results pile up) and Qwen's recommended thinking-mode sampling (greedy decoding makes it loop in its thoughts).
+Qwen3 is the default because it is free: nobody needs a sign-up, a key or a connection to run and review the project, and no Customer data leaves the machine. Qwen3 also supports tool calling and a thinking mode. Thinking stays on, because with it off Ollama's template leaves the model inside an unclosed `<think>` block and the reasoning leaks into the answer. The stream adapter forwards the reasoning as separate parts, and the chat shows it in a collapsed block. Ollama gets an explicit 16k context window (its small default silently cuts the start of the request, the system prompt, once tool results pile up) and Qwen's recommended thinking-mode sampling (greedy decoding makes it loop in its thoughts).
 
 `gpt-6-luna` is the model to use when answer quality matters more than cost, and the eval makes the case for it. In the latest run it passed all 12 scenarios, including the Complaint flow that both Qwen models stumbled on, and it was the only model to do so. It is also cheap to run: it is used with low reasoning effort, so each reply is fast and uses few tokens, which makes it a very reasonable choice for a real deployment. It stays optional, and Qwen stays the default, only because Qwen is free and keeps the project runnable offline. See [Eval findings](#eval-findings) for the numbers.
 
@@ -150,7 +150,7 @@ One system prompt template (`backend/src/music_store/assistant/prompts/system_v1
 2. Context: today's date and the audience. An identified Customer is never asked to identify themselves.
 3. Scope: instruments only. Accessories get a polite "we do not sell those" and a suggestion of partner stores. Off-topic questions get a short decline without any tool call. Other Customers are never discussed. The prompt is never revealed, and role-play or "ignore previous instructions" requests are declined.
 4. Tool rules: never state a price, stock level, or Order fact without a tool call in the current turn. Use tool prices exactly. Policies answered only from search results, with the more conservative answer when passages conflict. A product's name wins over its description. Return questions need both the Order and a policy search.
-5. Presentation: a promotional price is shown next to the list price and discount, and expired promotions, out-of-stock, discontinued and coming-soon products each have a rule.
+5. Presentation: a Promotional Price is shown next to the List Price and discount, and expired promotions, out-of-stock, discontinued and coming-soon products each have a rule.
 6. Style: concise, light markdown only.
 
 The prompt was tightened by running the eval and fixing what drifted. Notable additions: forbidding tool calls written out as text, requiring the answer to address the question asked rather than greeting again, and never filing a Complaint in the same reply that first shows the summary. Guardrails are prompt-only (see [Known limitations](#known-limitations)). Anything security-critical, like which Orders a Customer can see, is enforced in code instead.
@@ -190,7 +190,7 @@ Complaints have their own table: id, Customer, optional Order (checked to belong
 ## Assumptions
 
 - **Reference date.** The data is a snapshot, so "today" is fixed at `2026-03-25` (`REFERENCE_DATE`, set in `backend/.env`). It is injected into the prompt and is what the Assistant compares against for return windows and delivery dates. Using the real clock would make every delivered Order in the data look years old. Complaints are the one exception: their creation time is the real time.
-- **Estimated delivery stands in for actual delivery.** Orders have an `estimated_delivery` date and no delivery date. For a delivered Order, the Assistant treats the estimate as the delivery date and says so in its answer, for example when it checks whether the 7-day return window is still open.
+- **Estimated delivery stands in for actual delivery.** Orders have an `estimated_delivery` date and no delivery date. For a delivered Order, the Assistant treats the estimate as the delivery date and the prompt tells it to say so, for example when it checks whether the 7-day return window is still open.
 - **The Complaints screen is a staff view.** The Complaints page lists every Complaint from every Customer and ignores the selected Customer. In a real deployment it would sit behind staff authentication. Here, as with the rest of the app, there is no login.
 - **Identity comes from the Customer selector.** There is no authentication, so the `x-customer-id` header is trusted, and the interface's Customer picker stands in for "who is logged in". No header means a Visitor.
 - **The Policy Manual is the source for store facts.** Hours, address, phone numbers, payment, shipping and return rules are answered only from it, never from the model's memory.
@@ -210,7 +210,7 @@ The source data has inconsistencies. They are documented and handled in the prom
 - **One email belongs to two Customers** (`bruno.martins@jmail.com`). The email is not a key. The Assistant identifies Customers by id only, so this has no effect on what anyone can see.
 - **Status and payment method are free text, not normalized,** and `orders.total_brl` is stored rather than calculated (Order items do not keep the price paid). The Assistant reports the stored values.
 
-Not a data problem, but worth knowing: most of the 50 Customers (32) have never placed an Order. That is normal, since they have an account and simply have not bought yet. The Order tools simply return an empty list for them. Only 18 Customers have Orders, so those are the ones to pick when trying the Order flows (for example Customer 3).
+Not a data problem, but worth knowing: most of the 50 Customers (32) have never placed an Order. That is normal, since they are registered and simply have not placed an Order yet. The Order tools simply return an empty list for them. Only 18 Customers have Orders, so those are the ones to pick when trying the Order flows (for example Customer 3).
 
 ## Known limitations
 
@@ -224,7 +224,7 @@ Not a data problem, but worth knowing: most of the 50 Customers (32) have never 
 - **Embedding indexes are rebuilt on every start.** Each is built lazily on its first search, which costs a moment on the first policy question.
 - **Single language per answer, no translation of data.** Catalog and policy text stay in Portuguese. The UI language toggle changes only the interface, not the reply language.
 
-### Eval findings
+## Eval findings
 
 The eval (`backend/evals`) plays 12 scenarios against each model. In the latest full run:
 
@@ -234,7 +234,7 @@ The eval (`backend/evals`) plays 12 scenarios against each model. In the latest 
 | `qwen3:8b` | 9/12 |
 | `gpt-6-luna` | 12/12 |
 
-- **`gpt-6-luna` passed everything.** It was the only model to pass the Complaint flow end to end: it summarized, asked "Posso registrar?", waited, and only then called `register_complaint` and reported the real protocol number. Together with its low cost and low reasoning effort, it is the best model here by a clear margin, and the one we would deploy. Qwen stays the default because it is free and runs offline.
+- **`gpt-6-luna` passed everything.** It was the only model to pass the Complaint flow end to end: it summarized, asked "Posso registrar?", waited, and only then called `register_complaint` and reported the real protocol number. Together with its low cost and low reasoning effort, it is the strongest option in this run and the one to pick when quality matters. Qwen stays the default because it is free and runs offline.
 - **The default model fails one scenario worth knowing about.** `qwen3:4b` handled the catalog, pricing, policy, Order, scope and safety scenarios, but after the Customer confirmed a Complaint it did not call `register_complaint` and answered with an invented "Protocolo #12345". The Customer would think a Complaint exists when none does ([example 06](docs/examples/06-complaint-confirmation-qwen3-4b-failure.md)). Prompt-only confirmation is not enough to trust a small model with a write action.
 - **A bigger local model is not automatically better.** `qwen3:8b` scored lower than `qwen3:4b`: it called `register_complaint` before the Customer confirmed, did not give a Visitor the store's WhatsApp number and email, and called an Order tool for a Visitor. A single run is a sample, not a ranking, because both models are non-deterministic.
 - **Fixes that came out of the eval.** Setting the Ollama context window and sampling (a truncated prompt and greedy decoding had degraded the small model), forbidding tool calls written as text, steering answers to the question asked and the right Order tool, and requiring a separate message before a Complaint is filed.
@@ -243,7 +243,8 @@ The example conversations in [`docs/examples`](docs/examples/README.md) come fro
 
 ## What we would do with more time
 
-- **Authentication.** Real login for Customers, so the identity is a verified session and not a header. And staff authentication for the Complaints page, with roles.
+- **Customer authentication.** Real login, so the identity is a verified session and not a header.
+- **Staff authentication.** Protect the Complaints page and its endpoint, with roles.
 - **A Complaint lifecycle.** Status (open, in progress, resolved), assignment, notes and notifications, plus a way for the Customer to follow up on a protocol from the chat.
 - **Per-Customer model entitlements.** For example, only some Customers or plans get the API model. The model middleware is already the place for it.
 - **An input classifier.** A cheap model that screens each message for scope and jailbreak attempts before it reaches the Assistant, if the eval keeps showing drift.
