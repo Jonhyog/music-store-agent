@@ -21,3 +21,4 @@ class Settings(BaseSettings):
     langsmith_api_key: SecretStr | None = None
     langsmith_project: str = "music-store-assistant"
     history_window_messages: int = 20
+    conversation_idle_timeout_seconds: int = 3600

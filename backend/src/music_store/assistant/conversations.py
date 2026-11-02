@@ -1,5 +1,7 @@
 """Server-held Conversations: identity binding, one turn at a time, in-memory history (ADR 0002)."""
 
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from langchain_core.messages import RemoveMessage
@@ -16,25 +18,32 @@ Identity = int | None
 @dataclass
 class _Conversation:
     identity: Identity
+    last_active: float
     busy: bool = False
 
 
 class Turn:
     """Holds a Conversation's turn lock until `release` is called (safe to call twice)."""
 
-    def __init__(self, conversation: _Conversation) -> None:
+    def __init__(self, conversation: _Conversation, clock: Callable[[], float]) -> None:
         self._conversation = conversation
+        self._clock = clock
         self._released = False
 
     def release(self) -> None:
         if not self._released:
             self._released = True
             self._conversation.busy = False
+            self._conversation.last_active = self._clock()
 
 
 class Conversations:
-    def __init__(self) -> None:
+    def __init__(
+        self, idle_timeout_seconds: float = 3600, clock: Callable[[], float] = time.monotonic
+    ) -> None:
         self.checkpointer = InMemorySaver()
+        self._idle_timeout = idle_timeout_seconds
+        self._clock = clock
         self._conversations: dict[str, _Conversation] = {}
 
     def begin_turn(self, conversation_id: str, identity: Identity) -> Turn:
@@ -43,13 +52,24 @@ class Conversations:
         Raises a DomainError for a different identity or a turn already in progress. This is
         synchronous on purpose: with no await in between, check and lock can't interleave.
         """
-        conversation = self._conversations.setdefault(conversation_id, _Conversation(identity))
+        self._evict_idle()
+        conversation = self._conversations.setdefault(
+            conversation_id, _Conversation(identity, self._clock())
+        )
         if conversation.identity != identity:
             raise ConversationIdentityMismatchError
         if conversation.busy:
             raise ConversationBusyError
         conversation.busy = True
-        return Turn(conversation)
+        conversation.last_active = self._clock()
+        return Turn(conversation, self._clock)
+
+    def _evict_idle(self) -> None:
+        """Drop Conversations unused for longer than the idle timeout (never one mid-turn)."""
+        now = self._clock()
+        for conversation_id, conversation in list(self._conversations.items()):
+            if not conversation.busy and now - conversation.last_active > self._idle_timeout:
+                self.delete(conversation_id)
 
     def delete(self, conversation_id: str) -> None:
         self._conversations.pop(conversation_id, None)

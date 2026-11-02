@@ -34,7 +34,7 @@ def create_app(
     app = FastAPI(title="Music Store Assistant", lifespan=lifespan)
     app.state.settings = settings
     app.state.registry = registry or ProviderRegistry(settings)
-    app.state.conversations = Conversations()
+    app.state.conversations = Conversations(settings.conversation_idle_timeout_seconds)
     app.state.policy_indexes = PolicyIndexes(
         app.state.registry, settings.data_dir / "store-policies.pdf"
     )
