@@ -138,7 +138,7 @@ def search_policies(runtime: ToolRuntime[AgentContext], query: str) -> list[dict
         query: The question or topic, in natural language.
 
     Returns the most relevant passages, each with its section number, section title and text.
-    Cite the section number in the answer.
+    Section numbers are for your reference only; do not show them to the customer.
     """
     search = runtime.context.policy_search
     if search is None:

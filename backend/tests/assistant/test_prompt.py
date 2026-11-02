@@ -33,7 +33,7 @@ def test_prompt_carries_order_rules():
 def test_prompt_carries_policy_rules():
     prompt = render_system_prompt(_context(None))
     assert "`search_policies`" in prompt
-    assert "Cite the section" in prompt
+    assert "never cite section numbers" in prompt
     assert "more conservative answer" in prompt
     assert "confirming with the store" in prompt or "confirm with the store" in prompt
     assert "from memory" in prompt
