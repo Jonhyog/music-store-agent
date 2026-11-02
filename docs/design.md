@@ -22,7 +22,7 @@ Agreed design for the customer-service Assistant prototype described in `desafio
 
 ## Models
 
-- The allowlist is defined in config: `qwen3:4b` (default), `qwen3:8b` (Ollama), and `gpt-5.6-luna` (OpenAI).
+- The allowlist is defined in config: `qwen3:4b` (default), `qwen3:8b` (Ollama), and `gpt-6-luna` (OpenAI).
 - `GET /models` returns `{ models: [{id, provider, label, available, default}] }` with no pagination. `available` reflects whether the provider can be reached or has an API key.
 - A missing `x-model` falls back to the default from config.
 
