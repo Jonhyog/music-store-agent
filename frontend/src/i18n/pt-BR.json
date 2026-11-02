@@ -59,6 +59,12 @@
       "orders": [
         "Quero devolver um pedido. Como faço?"
       ]
+    },
+    "switchCustomer": {
+      "title": "Trocar de identidade?",
+      "description": "Trocar para {{name}} inicia uma nova conversa. A atual será apagada.",
+      "cancel": "Manter atual",
+      "confirm": "Trocar e recomeçar"
     }
   },
   "complaints": {

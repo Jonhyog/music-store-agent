@@ -12,6 +12,7 @@ import {
 } from "@/components/ai-elements/prompt-input"
 import { useChatSession } from "@/features/chat/chat-context"
 import { StarterSuggestions } from "@/features/chat/starter-suggestions"
+import { CustomerSwitchDialog } from "@/features/chat/customer-switch-dialog"
 import { MessageList } from "@/features/chat/message-list"
 
 export function ChatPage() {
@@ -51,6 +52,7 @@ export function ChatPage() {
           />
         </PromptInputFooter>
       </PromptInput>
+      <CustomerSwitchDialog />
     </div>
   )
 }

@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
+import { useChatSession } from "@/features/chat/chat-context"
+
 import { fetchCustomers, type Customer } from "./api"
 import { useIdentity } from "./identity"
 
@@ -29,7 +31,8 @@ const ITEM_CLASS =
 
 export function CustomerCombobox() {
   const { t } = useTranslation()
-  const { customer, setCustomer } = useIdentity()
+  const { customer } = useIdentity()
+  const { changeCustomer } = useChatSession()
   const [open, setOpen] = useState(false)
   // Whether the pointer is over the list or the keyboard is in use.
   const [active, setActive] = useState(false)
@@ -51,10 +54,10 @@ export function CustomerCombobox() {
 
   const select = useCallback(
     (next: Customer | null) => {
-      setCustomer(next)
+      changeCustomer(next)
       setOpen(false)
     },
-    [setCustomer]
+    [changeCustomer]
   )
 
   const customerItems = useMemo(

@@ -59,6 +59,12 @@
       "orders": [
         "I want to return an order. How do I do that?"
       ]
+    },
+    "switchCustomer": {
+      "title": "Switch identity?",
+      "description": "Switching to {{name}} starts a new conversation. The current one will be cleared.",
+      "cancel": "Keep current",
+      "confirm": "Switch and start over"
     }
   },
   "complaints": {
