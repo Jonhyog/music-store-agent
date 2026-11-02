@@ -29,7 +29,9 @@ async def _run_turn(
     try:
         app = request.app
         agent = build_agent(
-            app.state.registry.chat_model(model.id), app.state.conversations.checkpointer
+            app.state.registry.chat_model(model.id),
+            app.state.conversations.checkpointer,
+            app.state.settings.history_window_messages,
         )
         rollback = TurnRollback(agent, str(body.conversation_id))
         context = AgentContext(

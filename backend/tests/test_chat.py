@@ -3,9 +3,11 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
+from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 
 from fakes import FakeRegistry
+from music_store.app import create_app
 from music_store.routes.chat import ChatRequestModel, _run_turn
 
 
@@ -189,3 +191,27 @@ async def test_disconnect_mid_turn_rolls_the_turn_back(client, registry):
     registry.received.clear()
     assert _chat(client, conversation_id, message="c").status_code == 200
     assert [m.content for m in _history_sent_to_model(registry)] == ["a", "um", "c"]
+
+
+def test_only_the_most_recent_messages_are_sent_to_the_model(settings, registry):
+    settings.history_window_messages = 4
+    with TestClient(create_app(settings, registry=registry)) as client:
+        conversation_id = str(uuid4())
+        for n in range(1, 5):
+            registry.script = [AIMessage(content=f"r{n}")]
+            _chat(client, conversation_id, message=f"m{n}")
+        sent = [m.content for m in _history_sent_to_model(registry)]
+    assert sent == ["m3", "r3", "m4"]
+
+
+def test_the_window_never_starts_on_an_orphaned_tool_result(settings, registry):
+    settings.history_window_messages = 3
+    with TestClient(create_app(settings, registry=registry)) as client:
+        conversation_id = str(uuid4())
+        registry.script = [_tool_call(), AIMessage(content="r1")]
+        _chat(client, conversation_id, message="m1")
+        registry.script = [AIMessage(content="r2")]
+        _chat(client, conversation_id, message="m2")
+        sent = _history_sent_to_model(registry)
+    assert sent[0].type == "human"
+    assert [m.content for m in sent] == ["m2"]

@@ -20,3 +20,4 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = False
     langsmith_api_key: SecretStr | None = None
     langsmith_project: str = "music-store-assistant"
+    history_window_messages: int = 20
