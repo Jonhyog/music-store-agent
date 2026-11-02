@@ -57,7 +57,10 @@ function MessagePart({ part }: { part: UIMessage["parts"][number] }) {
   const { t } = useTranslation()
   if (part.type === "reasoning") {
     return (
-      <Reasoning isStreaming={part.state === "streaming"}>
+      <Reasoning
+        defaultOpen={false}
+        isStreaming={part.state === "streaming"}
+      >
         <ReasoningTrigger
           getThinkingMessage={(isStreaming, duration) =>
             isStreaming || duration === 0 ? (

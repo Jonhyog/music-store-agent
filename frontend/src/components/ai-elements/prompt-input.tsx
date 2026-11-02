@@ -921,7 +921,10 @@ export const PromptInput = ({
         ref={formRef}
         {...props}
       >
-        <InputGroup className="overflow-hidden">{children}</InputGroup>
+        {/* A disabled footer button (e.g. Clear) must not dim the whole group. */}
+        <InputGroup className="overflow-hidden has-disabled:bg-transparent has-disabled:opacity-100 dark:has-disabled:bg-input/30">
+          {children}
+        </InputGroup>
       </form>
     </>
   );
@@ -1230,7 +1233,7 @@ export const PromptInputSubmit = ({
   if (status === "submitted") {
     Icon = <Spinner />;
   } else if (status === "streaming") {
-    Icon = <SquareIcon className="size-4" />;
+    Icon = <SquareIcon className="size-4 fill-current" />;
   } else if (status === "error") {
     Icon = <XIcon className="size-4" />;
   }
