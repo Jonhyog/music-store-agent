@@ -8,7 +8,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 
 from music_store.assistant.context import AgentContext
 from music_store.assistant.prompt import render_system_prompt
-from music_store.assistant.tools import CATALOG_TOOLS, ORDER_TOOLS, POLICY_TOOLS
+from music_store.assistant.tools import CATALOG_TOOLS, COMPLAINT_TOOLS, ORDER_TOOLS, POLICY_TOOLS
 
 
 @dynamic_prompt
@@ -47,7 +47,7 @@ class HistoryWindow(AgentMiddleware):
 def build_agent(model: BaseChatModel, checkpointer: BaseCheckpointSaver, max_messages: int = 20):
     return create_agent(
         model,
-        tools=[*CATALOG_TOOLS, *ORDER_TOOLS, *POLICY_TOOLS],
+        tools=[*CATALOG_TOOLS, *ORDER_TOOLS, *POLICY_TOOLS, *COMPLAINT_TOOLS],
         middleware=[_system_prompt, HistoryWindow(max_messages)],
         context_schema=AgentContext,
         checkpointer=checkpointer,

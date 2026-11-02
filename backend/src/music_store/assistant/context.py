@@ -13,4 +13,5 @@ class AgentContext:
     customer: CustomerModel | None
     reference_date: date
     database_path: Path
+    conversation_id: str = ""
     policy_search: PolicySearch | None = None

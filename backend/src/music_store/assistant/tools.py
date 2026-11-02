@@ -9,8 +9,9 @@ from typing import Any
 from langchain.tools import ToolRuntime, tool
 from pydantic import BaseModel
 
-from music_store.assistant import catalog, orders
+from music_store.assistant import catalog, complaints, orders
 from music_store.assistant.context import AgentContext
+from music_store.models.complaint import ComplaintCategory
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +127,41 @@ def get_my_order(runtime: ToolRuntime[AgentContext], order_id: int) -> dict[str,
     return order.model_dump(mode="json") if order else ORDER_NOT_FOUND
 
 
+@tool
+def register_complaint(
+    runtime: ToolRuntime[AgentContext],
+    category: ComplaintCategory,
+    description: str,
+    order_id: int | None = None,
+) -> dict[str, Any]:
+    """File a Complaint for the identified Customer. Call it only after the customer has
+    confirmed your summary.
+
+    Args:
+        category: product_defect, delivery, service, payment or other.
+        description: Your short summary of the problem, in Brazilian Portuguese.
+        order_id: The related Order id, when the Complaint is about one of the Customer's Orders.
+
+    Returns the Complaint id (the protocol number) and its creation time.
+    """
+    customer = runtime.context.customer
+    if customer is None:
+        return NOT_IDENTIFIED
+    with _connection(runtime) as conn:
+        try:
+            complaint = complaints.register_complaint(
+                conn,
+                customer_id=customer.customer_id,
+                conversation_id=runtime.context.conversation_id,
+                category=category,
+                description=description,
+                order_id=order_id,
+            )
+        except complaints.OrderNotFoundForComplaint:
+            return ORDER_NOT_FOUND
+    return complaint.model_dump(mode="json")
+
+
 POLICY_UNAVAILABLE = {"error": "Policy search is not available."}
 
 
@@ -159,3 +195,4 @@ def search_policies(runtime: ToolRuntime[AgentContext], query: str) -> list[dict
 CATALOG_TOOLS = [search_products, get_product, list_categories, list_active_promotions]
 ORDER_TOOLS = [list_my_orders, get_my_order]
 POLICY_TOOLS = [search_policies]
+COMPLAINT_TOOLS = [register_complaint]

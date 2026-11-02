@@ -38,6 +38,7 @@ async def _run_turn(
             customer=customer,
             reference_date=app.state.settings.reference_date,
             database_path=app.state.settings.database_path,
+            conversation_id=str(body.conversation_id),
             policy_search=app.state.policy_indexes.searcher(model.id),
         )
         raw = agent.astream(
