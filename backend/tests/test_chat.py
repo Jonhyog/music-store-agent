@@ -1,9 +1,12 @@
 import json
+from types import SimpleNamespace
 from uuid import uuid4
 
+import pytest
 from langchain_core.messages import AIMessage
 
 from fakes import FakeRegistry
+from music_store.routes.chat import ChatRequestModel, _run_turn
 
 
 def _chat(client, conversation_id=None, message="oi", headers=None):
@@ -127,3 +130,62 @@ def test_policy_search_surfaces_sections_and_uses_the_requests_provider(client, 
     assert len(result["output"]) == 4
     assert all(chunk["section"] and chunk["text"] for chunk in result["output"])
     assert list(client.app.state.policy_indexes._stores) == ["openai"]
+
+
+def _tool_call(call_id="c1"):
+    return AIMessage(
+        content="",
+        tool_calls=[{"name": "search_products", "args": {"query": "violão"}, "id": call_id}],
+    )
+
+
+def _history_sent_to_model(registry) -> list:
+    """The last model call's messages, without the system prompt."""
+    return [m for m in registry.received[-1] if m.type != "system"]
+
+
+def test_failure_after_a_tool_request_leaves_no_orphaned_tool_request(client, registry):
+    conversation_id = str(uuid4())
+    registry.script = [_tool_call(), RuntimeError("model down")]
+    events = _events(_chat(client, conversation_id, message="primeira"))
+    assert "error" in [e["type"] for e in events[:-1]]
+
+    registry.script = [AIMessage(content="de volta")]
+    registry.received.clear()
+    assert _chat(client, conversation_id, message="segunda").status_code == 200
+    assert [(m.type, m.content) for m in _history_sent_to_model(registry)] == [("human", "segunda")]
+
+
+def test_failure_on_a_later_turn_keeps_the_earlier_turns(client, registry):
+    conversation_id = str(uuid4())
+    registry.script = [AIMessage(content="um")]
+    _chat(client, conversation_id, message="a")
+    registry.script = [RuntimeError("boom")]
+    _chat(client, conversation_id, message="b")
+
+    registry.script = [AIMessage(content="três")]
+    registry.received.clear()
+    _chat(client, conversation_id, message="c")
+    assert [m.content for m in _history_sent_to_model(registry)] == ["a", "um", "c"]
+
+
+@pytest.mark.anyio
+async def test_disconnect_mid_turn_rolls_the_turn_back(client, registry):
+    conversation_id = str(uuid4())
+    registry.script = [AIMessage(content="um")]
+    _chat(client, conversation_id, message="a")
+
+    app = client.app
+    body = ChatRequestModel(conversation_id=conversation_id, message="b")
+    registry.script = [_tool_call(), AIMessage(content="resposta longa")]
+    turn = app.state.conversations.begin_turn(conversation_id, None)
+    stream = _run_turn(turn, SimpleNamespace(app=app), body, None, app.state.registry.specs[0])
+    async for line in stream:  # the client reads up to the tool result, then goes away
+        if "tool-output-available" in line:
+            break
+    await stream.aclose()
+
+    registry.script = [AIMessage(content="três")]
+    registry.received.clear()
+    assert _chat(client, conversation_id, message="c").status_code == 200
+    assert [m.content for m in _history_sent_to_model(registry)] == ["a", "um", "c"]

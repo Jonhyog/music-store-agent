@@ -200,23 +200,36 @@ class StreamAdapter:
         ]
 
 
-async def ui_message_stream(raw: AsyncIterator[tuple[str, Any]]) -> AsyncIterator[str]:
+async def ui_message_stream(
+    raw: AsyncIterator[tuple[str, Any]], on_abort: Callable[[], None] | None = None
+) -> AsyncIterator[str]:
     """Turn the agent's `(mode, data)` stream into SSE lines.
 
-    A failure mid-stream becomes an `error` event instead of an exception.
+    A failure mid-stream becomes an `error` event instead of an exception. `on_abort` runs
+    synchronously when the turn fails or the consumer stops reading before it finished
+    (client disconnect), so the caller can roll the turn back.
     """
     adapter = StreamAdapter()
-    for event in adapter.start():
-        yield sse(event)
+    finished = False
     try:
-        async for mode, data in raw:
-            for event in adapter.translate(mode, data):
+        for event in adapter.start():
+            yield sse(event)
+        try:
+            async for mode, data in raw:
+                for event in adapter.translate(mode, data):
+                    yield sse(event)
+        except Exception:
+            logger.exception("Chat stream failed")
+            if on_abort is not None:
+                on_abort()
+            finished = True
+            for event in adapter.fail():
                 yield sse(event)
-    except Exception:
-        logger.exception("Chat stream failed")
-        for event in adapter.fail():
-            yield sse(event)
-    else:
-        for event in adapter.finish():
-            yield sse(event)
-    yield DONE
+        else:
+            finished = True
+            for event in adapter.finish():
+                yield sse(event)
+        yield DONE
+    finally:
+        if not finished and on_abort is not None:
+            on_abort()

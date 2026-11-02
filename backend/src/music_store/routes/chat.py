@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from contextlib import aclosing
 from typing import Annotated
 from uuid import UUID
 
@@ -8,7 +9,7 @@ from pydantic import BaseModel, Field
 
 from music_store.assistant.agent import build_agent
 from music_store.assistant.context import AgentContext
-from music_store.assistant.conversations import Turn
+from music_store.assistant.conversations import Turn, TurnRollback
 from music_store.assistant.stream import STREAM_HEADERS, ui_message_stream
 from music_store.assistant.tracing import build_tracing_callbacks
 from music_store.middleware.customer import CurrentCustomer
@@ -30,6 +31,7 @@ async def _run_turn(
         agent = build_agent(
             app.state.registry.chat_model(model.id), app.state.conversations.checkpointer
         )
+        rollback = TurnRollback(agent, str(body.conversation_id))
         context = AgentContext(
             customer=customer,
             reference_date=app.state.settings.reference_date,
@@ -45,8 +47,10 @@ async def _run_turn(
             context=context,
             stream_mode=["messages", "updates"],
         )
-        async for line in ui_message_stream(raw):
-            yield line
+        # `aclosing` makes a client disconnect reach the stream (and its rollback) right away.
+        async with aclosing(ui_message_stream(raw, on_abort=rollback)) as lines:
+            async for line in lines:
+                yield line
     finally:
         turn.release()
 

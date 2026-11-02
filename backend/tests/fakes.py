@@ -1,5 +1,5 @@
 import hashlib
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any
 
 from langchain_core.embeddings import Embeddings
@@ -18,6 +18,7 @@ class FakeChatModel(BaseChatModel):
 
     script: list[Any]
     cursor: int = 0
+    on_call: Callable[[list[BaseMessage]], None] | None = None  # sees what each call was sent
 
     @property
     def _llm_type(self) -> str:
@@ -29,6 +30,8 @@ class FakeChatModel(BaseChatModel):
     def _generate(self, messages: list[BaseMessage], stop=None, run_manager=None, **kwargs):
         if self.cursor >= len(self.script):
             raise AssertionError("FakeChatModel script exhausted")
+        if self.on_call is not None:
+            self.on_call(list(messages))
         step = self.script[self.cursor]
         self.cursor += 1
         if isinstance(step, Exception):
@@ -54,12 +57,13 @@ class FakeRegistry(ProviderRegistry):
         super().__init__(settings)
         self.available = available if available is not None else {s.id: True for s in self.specs}
         self.script = script or [AIMessage(content="ok")]
+        self.received: list[list[BaseMessage]] = []
 
     def is_available(self, spec: ModelSpec) -> bool:
         return self.available.get(spec.id, False)
 
     def chat_model(self, model_id: str) -> BaseChatModel:
-        return FakeChatModel(script=list(self.script))
+        return FakeChatModel(script=list(self.script), on_call=self.received.append)
 
     def embeddings(self, model_id: str) -> Embeddings:
         return FakeEmbeddings()
