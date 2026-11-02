@@ -27,3 +27,13 @@ class UnknownModelError(DomainError):
 class ModelUnavailableError(DomainError):
     status_code = 503
     detail = "Model is unavailable."
+
+
+class ConversationIdentityMismatchError(DomainError):
+    status_code = 409
+    detail = "Conversation belongs to a different customer."
+
+
+class ConversationBusyError(DomainError):
+    status_code = 409
+    detail = "conversation busy"
