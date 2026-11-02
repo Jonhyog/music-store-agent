@@ -72,7 +72,7 @@ export function ComplaintsPage() {
         </div>
       )}
 
-      {data && data.total > COMPLAINTS_PAGE_SIZE && (
+      {data && (data.total > COMPLAINTS_PAGE_SIZE || page > 1) && (
         <div className="flex items-center justify-center gap-3">
           <Button
             variant="outline"

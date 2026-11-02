@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge"
 
 import type { Complaint } from "./api"
 
-const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+const RELATIVE_TIME_UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+  ["year", 31_536_000],
+  ["month", 2_592_000],
   ["day", 86_400],
   ["hour", 3_600],
   ["minute", 60],
@@ -13,7 +15,7 @@ const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 export function relativeTime(iso: string, locale: string, now = Date.now()) {
   const seconds = Math.round((new Date(iso).getTime() - now) / 1000)
   const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" })
-  for (const [unit, size] of UNITS) {
+  for (const [unit, size] of RELATIVE_TIME_UNITS) {
     if (Math.abs(seconds) >= size) {
       return formatter.format(Math.trunc(seconds / size), unit)
     }
