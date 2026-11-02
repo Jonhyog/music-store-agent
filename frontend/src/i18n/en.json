@@ -36,6 +36,12 @@
     "stop": "Stop",
     "interrupted": "Interrupted",
     "retry": "Try again",
+    "toast": {
+      "badRequest": "That request was rejected. Check the selected customer and model.",
+      "busy": "Still answering your previous message. Wait a moment and try again.",
+      "otherCustomer": "This conversation belongs to another customer. Clear the chat to start over.",
+      "unavailable": "The selected model is unavailable. Pick another one."
+    },
     "error": "Something went wrong while answering. Please try again.",
     "tool": {
       "parameters": "Parameters",

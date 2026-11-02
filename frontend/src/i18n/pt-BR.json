@@ -36,6 +36,12 @@
     "stop": "Parar",
     "interrupted": "Interrompida",
     "retry": "Tentar novamente",
+    "toast": {
+      "badRequest": "Essa solicitação foi rejeitada. Verifique o cliente e o modelo selecionados.",
+      "busy": "Ainda estou respondendo à mensagem anterior. Aguarde um instante e tente de novo.",
+      "otherCustomer": "Esta conversa pertence a outro cliente. Limpe o chat para recomeçar.",
+      "unavailable": "O modelo selecionado está indisponível. Escolha outro."
+    },
     "error": "Algo deu errado ao responder. Tente novamente.",
     "tool": {
       "parameters": "Parâmetros",

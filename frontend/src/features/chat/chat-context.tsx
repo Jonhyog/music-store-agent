@@ -6,7 +6,27 @@ import type { Customer } from "@/features/customers/api"
 import { useIdentity } from "@/features/customers/identity"
 import { useModel } from "@/features/models/model-context"
 
-import { createChatTransport, deleteConversation } from "./transport"
+import { useTranslation } from "react-i18next"
+
+import { useToast } from "@/components/ui/toaster"
+
+import {
+  ChatHttpError,
+  createChatTransport,
+  deleteConversation,
+} from "./transport"
+
+/** The message key for a rejected request, by status. */
+function rejectionKey(error: ChatHttpError): string {
+  if (error.status === 400) return "chat.toast.badRequest"
+  if (error.status === 503) return "chat.toast.unavailable"
+  if (error.status === 409) {
+    return error.detail === "conversation busy"
+      ? "chat.toast.busy"
+      : "chat.toast.otherCustomer"
+  }
+  return "chat.error"
+}
 
 /** A model switch mid-Conversation, shown before the message at `atIndex`. */
 export type ModelChange = { atIndex: number; modelLabel: string }
@@ -50,9 +70,14 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [conversationId, setConversationId] = useState(() =>
     crypto.randomUUID()
   )
+  const { t } = useTranslation()
+  const { toast } = useToast()
   const { messages, status, sendMessage, stop, regenerate } = useChat({
     id: conversationId,
     transport,
+    onError: (error) => {
+      if (error instanceof ChatHttpError) toast(t(rejectionKey(error)))
+    },
   })
 
   const [interruptedIds, setInterruptedIds] = useState<ReadonlySet<string>>(
