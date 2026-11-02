@@ -123,5 +123,29 @@ def get_my_order(runtime: ToolRuntime[AgentContext], order_id: int) -> dict[str,
     return order.model_dump(mode="json") if order else ORDER_NOT_FOUND
 
 
+POLICY_UNAVAILABLE = {"error": "Policy search is not available."}
+
+
+@tool
+def search_policies(runtime: ToolRuntime[AgentContext], query: str) -> list[dict[str, Any]]:
+    """Search the store's Policy Manual: hours, address and contacts, payment and installments,
+    exchanges and returns, shipping, promotion rules, warranty and privacy.
+
+    Args:
+        query: The question or topic, in natural language.
+
+    Returns the most relevant passages, each with its section number, section title and text.
+    Cite the section number in the answer.
+    """
+    search = runtime.context.policy_search
+    if search is None:
+        return [POLICY_UNAVAILABLE]
+    return [
+        {"section": c.section, "title": c.heading, "parent_title": c.parent_title, "text": c.text}
+        for c in search(query)
+    ]
+
+
 CATALOG_TOOLS = [search_products, get_product, list_categories, list_active_promotions]
 ORDER_TOOLS = [list_my_orders, get_my_order]
+POLICY_TOOLS = [search_policies]

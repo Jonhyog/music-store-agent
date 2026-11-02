@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from music_store.assistant.conversations import Conversations
+from music_store.assistant.policy import PolicyIndexes
 from music_store.errors import DomainError
 from music_store.middleware.customer import CustomerMiddleware
 from music_store.middleware.errors import error_response
@@ -34,6 +35,9 @@ def create_app(
     app.state.settings = settings
     app.state.registry = registry or ProviderRegistry(settings)
     app.state.conversations = Conversations()
+    app.state.policy_indexes = PolicyIndexes(
+        app.state.registry, settings.data_dir / "store-policies.pdf"
+    )
     # Last added runs first, so the order is CORS, customer, model. CORS wraps the rest so
     # error responses still carry CORS headers.
     app.add_middleware(ModelMiddleware)

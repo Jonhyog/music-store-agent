@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from music_store.assistant.policy import PolicySearch
 from music_store.models.customer import CustomerModel
 
 
@@ -12,3 +13,4 @@ class AgentContext:
     customer: CustomerModel | None
     reference_date: date
     database_path: Path
+    policy_search: PolicySearch | None = None

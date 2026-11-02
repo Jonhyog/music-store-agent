@@ -8,7 +8,9 @@ from langgraph.checkpoint.memory import InMemorySaver
 from fakes import FakeChatModel
 from music_store.assistant.agent import build_agent
 from music_store.assistant.context import AgentContext
+from music_store.assistant.policy_chunks import load_policy_chunks
 from music_store.models.customer import CustomerModel
+from music_store.settings import REPO_ROOT
 
 
 def _run(settings, script, customer=None):
@@ -147,3 +149,35 @@ def test_order_tools_refuse_visitors_uniformly(settings, name, args):
     second = _order_tool(settings, "get_my_order", {"order_id": 999999}, customer_id=None)
     assert first == second
     assert "not identified" in first["error"]
+
+
+def _policy_tool(settings, args, policy_search):
+    agent = build_agent(
+        FakeChatModel(script=[_call("search_policies", args), AIMessage(content="ok")]),
+        InMemorySaver(),
+    )
+    context = AgentContext(
+        customer=None,
+        reference_date=date(2026, 3, 25),
+        database_path=settings.database_path,
+        policy_search=policy_search,
+    )
+    messages = agent.invoke(
+        {"messages": [("user", "oi")]},
+        config={"configurable": {"thread_id": "t"}},
+        context=context,
+    )["messages"]
+    return json.loads(next(m for m in messages if isinstance(m, ToolMessage)).content)
+
+
+def test_search_policies_tool_returns_passages_with_section_numbers(settings):
+    chunks = load_policy_chunks(REPO_ROOT / "data" / "store-policies.pdf")
+    results = _policy_tool(settings, {"query": "devolução"}, lambda query: chunks[:3])
+    assert [r["section"] for r in results] == ["1", "1.1", "1.2"]
+    assert results[1]["title"] == "1.1 Missão"
+    assert results[0]["text"]
+
+
+def test_search_policies_tool_without_an_index_reports_unavailable(settings):
+    results = _policy_tool(settings, {"query": "frete"}, None)
+    assert "not available" in results[0]["error"]
