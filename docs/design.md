@@ -1,6 +1,6 @@
 # Design — Empório da Música Assistant (MVP)
 
-Agreed design for the customer-service Assistant prototype described in `desafio_tecnico_ai_eng_artefact.pdf`. Domain vocabulary lives in [`GLOSSARY.md`](../GLOSSARY.md); hard-to-reverse decisions live in [`docs/adr/`](./adr/).
+Agreed design for the customer-service Assistant prototype. Domain vocabulary lives in [`GLOSSARY.md`](../GLOSSARY.md); hard-to-reverse decisions live in [`docs/adr/`](./adr/).
 
 ## Agent approach
 

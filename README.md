@@ -1,6 +1,6 @@
 # music-store-agent
 
-A customer-service Assistant for Empório da Música, a musical-instrument store in Campo Grande/MS (technical challenge: `desafio_tecnico_ai_eng_artefact.pdf`). It answers questions about the catalog, prices and promotions, a Customer's own Orders and the store's Policy Manual, and files Complaints. It replies in Brazilian Portuguese by default, and in the customer's language if they write in another one.
+A customer-service Assistant for Empório da Música, a musical-instrument store in Campo Grande/MS. It answers questions about the catalog, prices and promotions, a Customer's own Orders and the store's Policy Manual, and files Complaints. It replies in Brazilian Portuguese by default, and in the customer's language if they write in another one.
 
 It has three parts:
 
@@ -101,7 +101,7 @@ Tracing is off by default and is passed per request, not through process environ
 
 ## Technical decisions
 
-Each decision below is explained here. The ADRs in `docs/adr/` are "more info" for the three hardest-to-reverse ones, for readers who want the full reasoning and the options considered.
+Each decision below is explained here. For the three hardest-to-reverse ones, the ADRs in `docs/adr/` go deeper into the full reasoning and the options considered.
 
 ### Framework and approach: a tool-calling agent with fixed tools
 
@@ -257,7 +257,7 @@ The example conversations in [`docs/examples`](docs/examples/README.md) come fro
 
 The whole project was built with an AI coding agent in Cursor, driven by a repeatable workflow of small reusable "skills" (written instructions the agent follows) kept in the repo's `.agents/` folder. The human made the product and design decisions, and reviewed every step. The agent did the interviewing, writing, coding and checking. The sequence:
 
-1. **Design session first, no code.** A long "grilling" session in which the agent interviewed the author about the challenge brief, one decision at a time, and walked each branch of the design tree: scoping and identity, models, retrieval, history ownership, the streaming contract, Complaints, the prompt, the frontend and i18n. The agent proposed a recommended answer for each question and challenged weak ones, and the author accepted, changed or rejected it. Some decisions changed here. For example, client-held history was dropped for server-held history after the forged-turn attack came up, and the author's question about whether the API model would also use `bge-m3` led to one embedding index per provider. The author also pushed back on putting the whole manual in the prompt, which is why retrieval is a tool.
+1. **Design session first, no code.** A long "grilling" session in which the agent interviewed the author about the project requirements, one decision at a time, and walked each branch of the design tree: scoping and identity, models, retrieval, history ownership, the streaming contract, Complaints, the prompt, the frontend and i18n. The agent proposed a recommended answer for each question and challenged weak ones, and the author accepted, changed or rejected it. Some decisions changed here. For example, client-held history was dropped for server-held history after the forged-turn attack came up, and the author's question about whether the API model would also use `bge-m3` led to one embedding index per provider. The author also pushed back on putting the whole manual in the prompt, which is why retrieval is a tool.
 2. **Glossary and ADRs, written as decisions were made.** [`GLOSSARY.md`](GLOSSARY.md) fixed the vocabulary (Customer vs Visitor, List Price vs Promotional Price, Conversation, Complaint) and kept it consistent across the prompt, code, tests and UI. The three decisions that are hard to reverse became [ADRs](docs/adr/). The agreed design was saved as [`docs/design.md`](docs/design.md).
 3. **Spec, then tickets.** The design was turned into a product spec and then into 13 vertical-slice tickets (backend skeleton, model registry, streaming chat, chat UI, prices, Orders, policy retrieval, robustness, Complaints, prompt hardening and eval, and this documentation). Each ticket was a thin end-to-end slice with acceptance criteria and its dependencies. They were kept as markdown files in the repo.
 4. **Implementation ticket by ticket, test first.** For each ticket the agent used a red-green-refactor loop at agreed seams (the provider registry is the one tests replace with fakes, so no test calls a model), ran the type checker, linter and single test files as it went and the full suite at the end, and made small atomic commits. After each ticket a separate review step checked the change against the repo's standards and against the ticket's spec. The author gave review comments between tickets (for instance moving queries into constants, and adding typed row models), which the agent applied in follow-up commits.
