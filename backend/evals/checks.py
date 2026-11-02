@@ -94,6 +94,8 @@ def is_complete_answer() -> Check:
             return "the reply text is empty"
         if "\\boxed" in reply.text:
             return "the reply is wrapped in \\boxed{}"
+        if any(marker in reply.text for marker in ("<function_call>", "<tool_call>")):
+            return "the reply contains a tool call written as text"
         return None
 
     return check

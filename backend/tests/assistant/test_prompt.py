@@ -88,3 +88,7 @@ def test_prompt_keeps_identified_customers_and_complaint_confirmation_apart():
     prompt = render_system_prompt(_context(None))
     assert "never ask them to identify themselves" in prompt
     assert "never in the same reply in which you first show the summary" in prompt
+
+
+def test_prompt_forbids_tool_calls_written_as_text():
+    assert "Never write a tool call" in render_system_prompt(_context(None))

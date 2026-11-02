@@ -57,3 +57,4 @@ def test_is_complete_answer_rejects_empty_text_and_latex_wrappers():
     assert is_complete_answer()(_reply("Aqui estão os violões.")) is None
     assert "empty" in is_complete_answer()(_reply("   "))
     assert "boxed" in is_complete_answer()(_reply("ok \\boxed{ok}"))
+    assert "tool call" in is_complete_answer()(_reply("<function_call>{}</function_call>"))
