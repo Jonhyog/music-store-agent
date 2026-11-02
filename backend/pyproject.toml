@@ -10,6 +10,7 @@ dependencies = [
     "langchain>=1.4.7",
     "langchain-ollama>=1.1.0",
     "langchain-openai>=1.7.3",
+    "numpy>=2.5.4",
     "pydantic-settings>=2.16.2",
     "pypdf>=6.21.4",
     "uvicorn[standard]>=0.54.0",
