@@ -83,6 +83,26 @@
     }
   },
   "complaints": {
+    "title": "Reclamações",
+    "filterLabel": "Cliente",
+    "allCustomers": "Todos os clientes",
+    "search": "Buscar cliente...",
+    "protocol": "Protocolo #{{id}}",
+    "order": "Pedido #{{id}}",
+    "refresh": "Atualizar",
+    "empty": "Nenhuma reclamação registrada.",
+    "error": "Não foi possível carregar as reclamações.",
+    "retry": "Tentar novamente",
+    "previous": "Anterior",
+    "next": "Próxima",
+    "pageOf": "Página {{page}} de {{pages}}",
+    "category": {
+      "product_defect": "Defeito no produto",
+      "delivery": "Entrega",
+      "service": "Atendimento",
+      "payment": "Pagamento",
+      "other": "Outro"
+    },
     "placeholder": "As reclamações estarão disponíveis em breve."
   },
   "notFound": {

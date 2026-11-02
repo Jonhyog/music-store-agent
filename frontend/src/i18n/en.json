@@ -83,6 +83,26 @@
     }
   },
   "complaints": {
+    "title": "Complaints",
+    "filterLabel": "Customer",
+    "allCustomers": "All customers",
+    "search": "Search customer...",
+    "protocol": "Protocol #{{id}}",
+    "order": "Order #{{id}}",
+    "refresh": "Refresh",
+    "empty": "No complaints recorded.",
+    "error": "Could not load complaints.",
+    "retry": "Try again",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "category": {
+      "product_defect": "Product defect",
+      "delivery": "Delivery",
+      "service": "Service",
+      "payment": "Payment",
+      "other": "Other"
+    },
     "placeholder": "Complaints will be available soon."
   },
   "notFound": {
