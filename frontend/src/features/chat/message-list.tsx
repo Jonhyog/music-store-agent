@@ -1,4 +1,4 @@
-import { Fragment } from "react"
+import { Fragment, useMemo } from "react"
 import { getToolName, isToolUIPart, type UIMessage } from "ai"
 import { useTranslation } from "react-i18next"
 
@@ -80,33 +80,38 @@ export function MessageList({
   empty: React.ReactNode
 }) {
   const { t } = useTranslation()
+  const body = useMemo(
+    () =>
+      messages.length === 0 ? (
+        <ConversationEmptyState
+          title={t("chat.emptyTitle")}
+          description={t("chat.emptyDescription")}
+        >
+          {empty}
+        </ConversationEmptyState>
+      ) : (
+        <>
+          {messages.map((message, index) => (
+            <Fragment key={message.id}>
+              <ModelDividers changes={modelChanges} atIndex={index} />
+              <Message from={message.role}>
+                <MessageContent>
+                  {message.parts.map((part, i) => (
+                    <MessagePart key={i} part={part} />
+                  ))}
+                </MessageContent>
+              </Message>
+            </Fragment>
+          ))}
+          <ModelDividers changes={modelChanges} atIndex={messages.length} />
+        </>
+      ),
+    [messages, modelChanges, empty, t]
+  )
   return (
     <Conversation>
       <ConversationContent>
-        {messages.length === 0 ? (
-          <ConversationEmptyState
-            title={t("chat.emptyTitle")}
-            description={t("chat.emptyDescription")}
-          >
-            {empty}
-          </ConversationEmptyState>
-        ) : (
-          <>
-            {messages.map((message, index) => (
-              <Fragment key={message.id}>
-                <ModelDividers changes={modelChanges} atIndex={index} />
-                <Message from={message.role}>
-                  <MessageContent>
-                    {message.parts.map((part, i) => (
-                      <MessagePart key={i} part={part} />
-                    ))}
-                  </MessageContent>
-                </Message>
-              </Fragment>
-            ))}
-            <ModelDividers changes={modelChanges} atIndex={messages.length} />
-          </>
-        )}
+        {body}
         {hasError && (
           <p role="alert" className="text-sm text-destructive">
             {t("chat.error")}

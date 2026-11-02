@@ -51,14 +51,10 @@
     "scrollToBottom": "Scroll to latest",
     "clear": "Clear chat",
     "suggestions": {
-      "catalog": [
-        "Which acoustic guitars (violões) cost up to R$1000?",
-        "What is the store's address?",
-        "How much is the Takamine GD20?"
-      ],
-      "orders": [
-        "I want to return an order. How do I do that?"
-      ]
+      "guitars": "Which acoustic guitars (violões) cost up to R$1000?",
+      "address": "What is the store's address?",
+      "price": "How much is the Takamine GD20?",
+      "return": "I want to return an order. How do I do that?"
     },
     "switchCustomer": {
       "title": "Switch identity?",

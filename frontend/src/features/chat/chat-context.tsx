@@ -19,6 +19,8 @@ type ChatContextValue = {
   send: (text: string) => void
   /** Ends the current Conversation and starts an empty one. */
   clear: () => void
+  /** Switches model, keeping the Conversation and marking the switch in the history. */
+  changeModel: (id: string) => void
   /** Switches Customer; with messages present, asks for confirmation first. */
   changeCustomer: (next: Customer | null) => void
   /** The Customer awaiting confirmation (`null` inside means Visitor), if any. */
@@ -31,9 +33,9 @@ const ChatContext = createContext<ChatContextValue | null>(null)
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
   const { customer, setCustomer, identityHeaders } = useIdentity()
-  const { models, modelId, modelHeaders } = useModel()
+  const { models, modelId, setModelId, modelHeaders } = useModel()
 
-  const [{ transport, setHeaders }] = useState(createChatTransport)
+  const { transport, setHeaders } = useMemo(() => createChatTransport(), [])
   useEffect(() => {
     setHeaders({ ...identityHeaders, ...modelHeaders })
   }, [setHeaders, identityHeaders, modelHeaders])
@@ -48,19 +50,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   })
 
   const [modelChanges, setModelChanges] = useState<ModelChange[]>([])
-  const [seenModelId, setSeenModelId] = useState(modelId)
-  if (modelId !== seenModelId) {
-    setSeenModelId(modelId)
-    const label = models.find((m) => m.id === modelId)?.label
-    // The first resolved model is not a switch, and neither is one before any message.
-    if (seenModelId !== null && label && messages.length > 0) {
-      setModelChanges([
-        ...modelChanges,
-        { atIndex: messages.length, modelLabel: label },
-      ])
-    }
-  }
-
   const [pendingCustomer, setPendingCustomer] =
     useState<ChatContextValue["pendingCustomer"]>(null)
 
@@ -83,6 +72,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       isStreaming: status === "submitted" || status === "streaming",
       send: (text) => void sendMessage({ text }),
       clear,
+      changeModel: (id) => {
+        const label = models.find((m) => m.id === id)?.label
+        if (id === modelId || !label) return
+        setModelId(id)
+        if (messages.length > 0) {
+          setModelChanges([
+            ...modelChanges,
+            { atIndex: messages.length, modelLabel: label },
+          ])
+        }
+      },
       changeCustomer: (next) => {
         if (next?.customer_id === customer?.customer_id) return
         if (messages.length === 0) switchCustomer(next)
@@ -102,6 +102,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     sendMessage,
     stop,
     conversationId,
+    models,
+    modelId,
+    setModelId,
     customer,
     setCustomer,
     pendingCustomer,

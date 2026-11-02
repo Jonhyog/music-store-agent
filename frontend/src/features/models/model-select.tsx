@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useChatSession } from "@/features/chat/chat-context"
 import { cn } from "@/lib/utils"
 
 import { useModel } from "./model-context"
@@ -26,7 +27,8 @@ function AvailabilityDot({ available }: { available: boolean }) {
 
 export function ModelSelect() {
   const { t } = useTranslation()
-  const { models, isPending, isError, modelId, setModelId } = useModel()
+  const { models, isPending, isError, modelId } = useModel()
+  const { changeModel } = useChatSession()
 
   const modelItems = useMemo(
     () =>
@@ -47,7 +49,7 @@ export function ModelSelect() {
   return (
     <Select
       value={modelId ?? ""}
-      onValueChange={setModelId}
+      onValueChange={changeModel}
       disabled={models.length === 0}
     >
       <SelectTrigger className="w-56" aria-label={t("model.label")}>

@@ -1,7 +1,14 @@
 import { useTranslation } from "react-i18next"
 
-import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion"
+import { Suggestion } from "@/components/ai-elements/suggestion"
 import { useIdentity } from "@/features/customers/identity"
+
+const CATALOG_SUGGESTIONS = [
+  "chat.suggestions.guitars",
+  "chat.suggestions.address",
+  "chat.suggestions.price",
+] as const
+const ORDER_SUGGESTIONS = ["chat.suggestions.return"] as const
 
 /** Starter questions for an empty chat; order questions need a Customer. */
 export function StarterSuggestions({
@@ -11,16 +18,20 @@ export function StarterSuggestions({
 }) {
   const { t } = useTranslation()
   const { customer } = useIdentity()
-  const list = (key: string) =>
-    t(key, { returnObjects: true }) as unknown as string[]
-  const catalog = list("chat.suggestions.catalog")
-  const orders = customer ? list("chat.suggestions.orders") : []
+  const keys = customer
+    ? [...CATALOG_SUGGESTIONS, ...ORDER_SUGGESTIONS]
+    : CATALOG_SUGGESTIONS
 
   return (
-    <Suggestions className="flex-wrap justify-center whitespace-normal">
-      {[...catalog, ...orders].map((text) => (
-        <Suggestion key={text} suggestion={text} onClick={onPick} />
+    <div className="flex flex-wrap justify-center gap-2">
+      {keys.map((key) => (
+        <Suggestion
+          key={key}
+          suggestion={t(key)}
+          onClick={onPick}
+          className="h-auto py-1.5 whitespace-normal"
+        />
       ))}
-    </Suggestions>
+    </div>
   )
 }
