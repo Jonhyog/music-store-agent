@@ -1,0 +1,81 @@
+"""Read-only catalog queries used by the Assistant's tools."""
+
+import json
+import sqlite3
+import unicodedata
+from typing import Any
+
+DEFAULT_SEARCH_LIMIT = 10
+
+PRODUCTS_QUERY = """
+    SELECT p.product_id, p.name, c.name AS category, p.price_brl AS list_price_brl,
+           p.stock_quantity, p.status, p.description, p.specs
+    FROM products p
+    LEFT JOIN categories c ON c.category_id = p.category_id
+    ORDER BY p.product_id
+"""
+
+
+def _normalize(text: str) -> str:
+    decomposed = unicodedata.normalize("NFKD", text.casefold())
+    return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+
+
+def _product(row: sqlite3.Row) -> dict[str, Any]:
+    product = dict(row)
+    product["specs"] = json.loads(product["specs"]) if product["specs"] else None
+    return product
+
+
+def _all_products(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    return [_product(row) for row in conn.execute(PRODUCTS_QUERY)]
+
+
+def search_products(
+    conn: sqlite3.Connection,
+    *,
+    query: str | None = None,
+    category: str | None = None,
+    max_price: float | None = None,
+    in_stock_only: bool = False,
+    limit: int = DEFAULT_SEARCH_LIMIT,
+) -> list[dict[str, Any]]:
+    """Search Products. Free text must match every word, in the name first, else the description."""
+    tokens = _normalize(query).split() if query else []
+    wanted_category = _normalize(category).strip() if category else None
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for product in _all_products(conn):
+        if max_price is not None and product["list_price_brl"] > max_price:
+            continue
+        if in_stock_only and product["stock_quantity"] <= 0:
+            continue
+        if wanted_category and wanted_category not in _normalize(product["category"] or ""):
+            continue
+        name = _normalize(product["name"])
+        haystack = " ".join(
+            [name, _normalize(product["category"] or ""), _normalize(product["description"] or "")]
+        )
+        if not all(token in haystack for token in tokens):
+            continue
+        scored.append((0 if all(token in name for token in tokens) else 1, product))
+    scored.sort(key=lambda pair: pair[0])  # stable: keeps product_id order inside a rank
+    return [product for _, product in scored[:limit]]
+
+
+def get_product(
+    conn: sqlite3.Connection, *, product_id: int | None = None, name: str | None = None
+) -> dict[str, Any] | None:
+    """Return one Product by id, or by exact (accent/case-insensitive) name."""
+    for product in _all_products(conn):
+        if product_id is not None and product["product_id"] == product_id:
+            return product
+        if name is not None and _normalize(product["name"]) == _normalize(name).strip():
+            return product
+    return None
+
+
+def list_categories(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        "SELECT category_id, name, description FROM categories ORDER BY category_id"
+    )
+    return [dict(row) for row in rows]
