@@ -1,4 +1,3 @@
-import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -6,7 +5,7 @@ from anyio import to_thread
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from music_store.conversations import Conversations
+from music_store.assistant.conversations import Conversations
 from music_store.errors import DomainError
 from music_store.middleware.customer import CustomerMiddleware
 from music_store.middleware.errors import error_response
@@ -33,7 +32,6 @@ def create_app(
     settings = settings or Settings()
     app = FastAPI(title="Music Store Assistant", lifespan=lifespan)
     app.state.settings = settings
-    os.environ.update(settings.langsmith_env())
     app.state.registry = registry or ProviderRegistry(settings)
     app.state.conversations = Conversations()
     # Last added runs first, so the order is CORS, customer, model. CORS wraps the rest so

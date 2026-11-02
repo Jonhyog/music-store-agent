@@ -6,11 +6,13 @@ from fastapi import APIRouter, Request, Response
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from music_store.agent import AgentContext, build_agent
-from music_store.conversations import Turn
+from music_store.assistant.agent import build_agent
+from music_store.assistant.context import AgentContext
+from music_store.assistant.conversations import Turn
+from music_store.assistant.stream import STREAM_HEADERS, ui_message_stream
+from music_store.assistant.tracing import build_tracing_callbacks
 from music_store.middleware.customer import CurrentCustomer
 from music_store.middleware.model import CurrentModel
-from music_store.stream import STREAM_HEADERS, ui_message_stream
 
 router = APIRouter()
 
@@ -35,7 +37,10 @@ async def _run_turn(
         )
         raw = agent.astream(
             {"messages": [("user", body.message)]},
-            config={"configurable": {"thread_id": str(body.conversation_id)}},
+            config={
+                "configurable": {"thread_id": str(body.conversation_id)},
+                "callbacks": build_tracing_callbacks(app.state.settings),
+            },
             context=context,
             stream_mode=["messages", "updates"],
         )

@@ -20,13 +20,3 @@ class Settings(BaseSettings):
     langsmith_tracing: bool = False
     langsmith_api_key: SecretStr | None = None
     langsmith_project: str = "music-store-assistant"
-
-    def langsmith_env(self) -> dict[str, str]:
-        """Environment variables LangChain reads to enable LangSmith tracing (empty when off)."""
-        if not self.langsmith_tracing or self.langsmith_api_key is None:
-            return {}
-        return {
-            "LANGSMITH_TRACING": "true",
-            "LANGSMITH_API_KEY": self.langsmith_api_key.get_secret_value(),
-            "LANGSMITH_PROJECT": self.langsmith_project,
-        }

@@ -6,7 +6,8 @@ from langchain_core.messages import AIMessage, ToolMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 from fakes import FakeChatModel
-from music_store.agent import AgentContext, build_agent
+from music_store.assistant.agent import build_agent
+from music_store.assistant.context import AgentContext
 from music_store.models.customer import CustomerModel
 
 

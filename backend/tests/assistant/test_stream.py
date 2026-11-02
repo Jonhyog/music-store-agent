@@ -6,8 +6,9 @@ from langchain_core.messages import AIMessage, AIMessageChunk, ToolMessage
 from langgraph.checkpoint.memory import InMemorySaver
 
 from fakes import FakeChatModel
-from music_store.agent import AgentContext, build_agent
-from music_store.stream import DONE, ui_message_stream
+from music_store.assistant.agent import build_agent
+from music_store.assistant.context import AgentContext
+from music_store.assistant.stream import DONE, ui_message_stream
 
 pytestmark = pytest.mark.anyio
 

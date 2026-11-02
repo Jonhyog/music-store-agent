@@ -2,7 +2,7 @@ import sqlite3
 
 import pytest
 
-from music_store.catalog import get_product, list_categories, search_products
+from music_store.assistant.catalog import get_product, list_categories, search_products
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def test_search_filters_by_category(conn):
 
 
 def test_search_filters_by_max_price(conn):
-    results = search_products(conn, max_price=1000)
+    results = search_products(conn, max_price_brl=1000)
     assert results
     assert all(p["list_price_brl"] <= 1000 for p in results)
 

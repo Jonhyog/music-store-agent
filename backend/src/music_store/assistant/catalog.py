@@ -36,7 +36,7 @@ def search_products(
     *,
     query: str | None = None,
     category: str | None = None,
-    max_price: float | None = None,
+    max_price_brl: float | None = None,
     in_stock_only: bool = False,
     limit: int = DEFAULT_SEARCH_LIMIT,
 ) -> list[dict[str, Any]]:
@@ -45,7 +45,7 @@ def search_products(
     wanted_category = _normalize(category).strip() if category else None
     scored: list[tuple[int, dict[str, Any]]] = []
     for product in _all_products(conn):
-        if max_price is not None and product["list_price_brl"] > max_price:
+        if max_price_brl is not None and product["list_price_brl"] > max_price_brl:
             continue
         if in_stock_only and product["stock_quantity"] <= 0:
             continue
