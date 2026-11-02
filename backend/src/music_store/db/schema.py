@@ -50,6 +50,20 @@ CREATE TABLE order_items (
 );
 """
 
+# Kept across re-seeding (the store tables above are rebuilt from the CSVs), wiped by `--reset`.
+COMPLAINTS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS complaints (
+    complaint_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    customer_id INTEGER NOT NULL REFERENCES customers (customer_id),
+    order_id INTEGER REFERENCES orders (order_id),
+    category TEXT NOT NULL
+        CHECK (category IN ('product_defect', 'delivery', 'service', 'payment', 'other')),
+    description TEXT NOT NULL,
+    conversation_id TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+"""
+
 # Load order respects foreign keys. Columns are listed explicitly so CSV column order is irrelevant.
 TABLES: dict[str, list[str]] = {
     "categories": ["category_id", "name", "description"],
