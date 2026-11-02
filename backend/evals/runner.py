@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from evals.checks import Check
+from evals.checks import Check, is_complete_answer
 from evals.transcript import Reply, parse_stream
 
 
@@ -78,7 +78,8 @@ def run_scenario(client: httpx.Client, scenario: Scenario, model_id: str) -> Sce
                 failures.append([str(exc)])
                 break
             replies.append(reply)
-            failures.append([msg for check in step.checks if (msg := check(reply))])
+            checks = [is_complete_answer(), *step.checks]
+            failures.append([msg for check in checks if (msg := check(reply))])
     finally:
         client.delete(f"/chat/{conversation_id}")
     return ScenarioResult(scenario, model_id, replies, failures)

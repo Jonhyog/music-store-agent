@@ -99,3 +99,20 @@ def test_a_rejected_request_is_a_failure_not_a_crash():
 
     assert not result.passed
     assert "503" in result.failures[0][0]
+
+
+def test_every_step_is_also_held_to_the_complete_answer_check():
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "DELETE":
+            return httpx.Response(204)
+        return httpx.Response(
+            200, text=_sse({"type": "text-delta", "id": "t", "delta": "ok \\boxed{ok}"})
+        )
+
+    client = httpx.Client(transport=httpx.MockTransport(handler), base_url="http://test")
+    scenario = Scenario(id="s", title="S", customer_id=None, steps=[Step("oi", [])])
+
+    result = run_scenario(client, scenario, "qwen3:4b")
+
+    assert not result.passed
+    assert "boxed" in result.failures[0][0]

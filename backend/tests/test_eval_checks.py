@@ -5,6 +5,7 @@ from evals.checks import (
     contains_any,
     does_not_call_tool,
     does_not_contain,
+    is_complete_answer,
     uses_no_tools,
 )
 from evals.transcript import Reply, ToolCall
@@ -50,3 +51,9 @@ def test_calls_any_tool_accepts_either_tool():
     check = calls_any_tool("get_product", "search_products")
     assert check(_reply("", "search_products")) is None
     assert "get_product" in check(_reply("", "list_categories"))
+
+
+def test_is_complete_answer_rejects_empty_text_and_latex_wrappers():
+    assert is_complete_answer()(_reply("Aqui estão os violões.")) is None
+    assert "empty" in is_complete_answer()(_reply("   "))
+    assert "boxed" in is_complete_answer()(_reply("ok \\boxed{ok}"))

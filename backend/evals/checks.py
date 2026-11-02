@@ -85,3 +85,15 @@ def asks_confirmation() -> Check:
         return "expected a request to confirm"
 
     return check
+
+
+@_unless_errored
+def is_complete_answer() -> Check:
+    def check(reply: Reply) -> str | None:
+        if not reply.text.strip():
+            return "the reply text is empty"
+        if "\\boxed" in reply.text:
+            return "the reply is wrapped in \\boxed{}"
+        return None
+
+    return check
