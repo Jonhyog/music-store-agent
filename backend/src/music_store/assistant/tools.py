@@ -37,7 +37,8 @@ def search_products(
         max_price_brl: Maximum List Price in BRL.
         in_stock_only: Only Products with stock available.
 
-    Returns Products with List Price, stock quantity, Catalog Status and specs.
+    Returns Products with List Price, active Promotion, Promotional Price, PIX price (only when
+    there is no Promotion), stock quantity, Catalog Status and specs.
     """
     with _connection(runtime) as conn:
         return catalog.search_products(
@@ -53,7 +54,7 @@ def search_products(
 def get_product(
     runtime: ToolRuntime[AgentContext], name: str | None = None, product_id: int | None = None
 ) -> dict[str, Any]:
-    """Get one Product by its exact name or its id, with List Price, stock, status and specs."""
+    """Get one Product by name or id: prices (list, promotional, PIX), stock, status and specs."""
     with _connection(runtime) as conn:
         product = catalog.get_product(conn, product_id=product_id, name=name)
     return product or {"error": "Product not found."}
@@ -66,4 +67,17 @@ def list_categories(runtime: ToolRuntime[AgentContext]) -> list[dict[str, Any]]:
         return catalog.list_categories(conn)
 
 
-CATALOG_TOOLS = [search_products, get_product, list_categories]
+@tool
+def list_active_promotions(
+    runtime: ToolRuntime[AgentContext], category: str | None = None
+) -> list[dict[str, Any]]:
+    """List Products that have an active Promotion, with campaign, discount and prices.
+
+    Args:
+        category: Optional Category name to restrict the listing, e.g. "Violões".
+    """
+    with _connection(runtime) as conn:
+        return catalog.list_active_promotions(conn, category=category)
+
+
+CATALOG_TOOLS = [search_products, get_product, list_categories, list_active_promotions]

@@ -57,6 +57,40 @@ def test_get_product_and_list_categories_tools(settings):
     assert len(by_id["b"]) == 9
 
 
+def _tool_output(settings, name, args):
+    messages = _run(settings, [_call(name, args), AIMessage(content="ok")])
+    return json.loads(next(m for m in messages if isinstance(m, ToolMessage)).content)
+
+
+def test_get_product_tool_with_active_promotion(settings):
+    product = _tool_output(settings, "get_product", {"product_id": 127})
+    assert product["promotion"]["discount_percent"] == 10
+    assert product["promotional_price_brl"] == round(product["list_price_brl"] * 0.9, 2)
+    assert product["pix_price_brl"] is None
+
+
+def test_get_product_tool_without_promotion_has_pix_price(settings):
+    product = _tool_output(settings, "get_product", {"product_id": 81})
+    assert product["promotion"] is None
+    assert product["pix_price_brl"] == 569.91
+
+
+def test_get_product_tool_with_only_inactive_promotions(settings):
+    product = _tool_output(settings, "get_product", {"product_id": 102})
+    assert product["promotion"] is None
+    assert product["promotional_price_brl"] is None
+    assert product["pix_price_brl"] is not None
+
+
+def test_list_active_promotions_tool_with_and_without_category(settings):
+    everything = _tool_output(settings, "list_active_promotions", {})
+    assert {p["product_id"] for p in everything} == {90, 94, 121, 127}
+    category = everything[0]["category"]
+    filtered = _tool_output(settings, "list_active_promotions", {"category": category})
+    assert filtered and {p["category"] for p in filtered} == {category}
+    assert len(filtered) <= len(everything)
+
+
 @pytest.mark.parametrize(
     "customer",
     [None, CustomerModel(customer_id=1, name="Ana Souza", phone=None, email=None, city=None)],
