@@ -1,7 +1,7 @@
 # Asks for confirmation before filing a Complaint
 
 - Scenario: `complaint-confirmation`
-- Model: `qwen3:4b`
+- Model: `gpt-6-luna`
 - Talking as: Customer 3
 - Result: **PASS**
 
@@ -40,15 +40,7 @@ Result:
 
 ## Assistant
 
-Para processar a sua reclamação, preciso confirmar os detalhes. O pedido **1** (data: 2025-10-15) está marcado como **entregue** com código de rastreamento **BRAB1234567BR**. 
-
-**Resumo da reclamação (confirme):**  
-Categoria: **delivery**  
-Pedido: **1**  
-Descrição: *"O pedido chegou com a caixa amassada."*
-
-**Confirme com "sim" ou "não" para prosseguir com a reclamação.**
-
+Entendi. Vou registrar como **reclamação de entrega**, vinculada ao pedido **#1**, com a descrição: “O pedido chegou com a caixa amassada”. Posso registrar?
 
 ## Customer
 
@@ -68,11 +60,11 @@ Result:
 
 ```json
 {
-  "complaint_id": 4,
-  "created_at": "2026-11-02T15:16:58.284857Z"
+  "complaint_id": 13,
+  "created_at": "2026-11-02T19:16:33.522139Z"
 }
 ```
 
 ## Assistant
 
-Olá Pedro, seu protocolo de reclamação foi registrado como **#4**. A equipe do Empório da Música resolverá seu caso dentro de 24h úteis. Qualquer dúvida, estou aqui para ajudar!
+Reclamação registrada: **Protocolo #13**. A equipe da loja responde em até 24 horas úteis.

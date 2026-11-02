@@ -11,4 +11,4 @@ Vocês vendem cordas e palhetas para violão?
 
 ## Assistant
 
-Desculpe, mas nós só vendemos instrumentos musicais, não acessórios como cordas e palhetas. Para comprar esses itens, recomendo procurar lojas parceiras ou entrar em contato com nosso WhatsApp. 😊
+Olá! Não, nós só vendemos instrumentos musicais. Cordas e palhetas são acessórios e não estão disponíveis aqui. Sugiro verificar com lojas parceiras da região.
