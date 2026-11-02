@@ -21,13 +21,9 @@ import { cn } from "@/lib/utils"
 
 import { useChatSession } from "@/features/chat/chat-context"
 
+import { COMMAND_ITEM_CLASS } from "./command-item-class"
 import { fetchCustomers, type Customer } from "./api"
 import { useIdentity } from "./identity"
-
-// cmdk always marks one item as selected and moves the mark on pointer move.
-// Only paint it while the pointer is over the list or the keyboard is in use.
-const ITEM_CLASS =
-  "data-selected:bg-transparent group-data-[active=true]/cmd:data-[selected=true]:bg-muted"
 
 export function CustomerCombobox() {
   const { t } = useTranslation()
@@ -64,7 +60,7 @@ export function CustomerCombobox() {
     () =>
       data?.customers.map((c) => (
         <CommandItem
-          className={ITEM_CLASS}
+          className={COMMAND_ITEM_CLASS}
           key={c.customer_id}
           value={label(c)}
           onSelect={() => select(c)}
@@ -110,7 +106,7 @@ export function CustomerCombobox() {
             <CommandEmpty>{t("customer.empty")}</CommandEmpty>
             <CommandGroup>
               <CommandItem
-                className={ITEM_CLASS}
+                className={COMMAND_ITEM_CLASS}
                 value={t("customer.visitor")}
                 onSelect={() => select(null)}
               >
