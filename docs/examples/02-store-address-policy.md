@@ -5,7 +5,7 @@
 - Talking as: Visitor
 - Result: **PASS**
 
-## User
+## Visitor
 
 Qual é o endereço da loja?
 

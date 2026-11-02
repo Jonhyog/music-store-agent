@@ -15,7 +15,7 @@ class EvalError(Exception):
 
 @dataclass
 class Step:
-    """One user message and the checks its reply must pass."""
+    """One message from the Customer or Visitor and the checks its reply must pass."""
 
     message: str
     checks: list[Check] = field(default_factory=list)

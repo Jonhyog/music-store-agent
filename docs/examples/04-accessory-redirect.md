@@ -5,7 +5,7 @@
 - Talking as: Visitor
 - Result: **PASS**
 
-## User
+## Visitor
 
 Vocês vendem cordas e palhetas para violão?
 

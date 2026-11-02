@@ -10,7 +10,7 @@ from pathlib import Path
 
 import httpx
 
-from evals.report import render_summary, render_transcript
+from evals.report import render_summary, render_transcript, verdict
 from evals.runner import EvalError, run_scenario, select_models
 from evals.scenarios import SCENARIOS
 
@@ -62,9 +62,7 @@ def _run(args: argparse.Namespace) -> bool:
                 target = folder / model_id.replace(":", "-") / f"{scenario.id}.md"
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_text(render_transcript(result), encoding="utf-8")
-                print(
-                    f"{'PASS' if result.passed else 'FAIL'}  {model_id}  {scenario.id}", flush=True
-                )
+                print(f"{verdict(result.passed)}  {model_id}  {scenario.id}", flush=True)
     summary = render_summary(results)
     (folder / "summary.md").write_text(summary + "\n", encoding="utf-8")
     print(f"\n{summary}\n\nTranscripts saved in {folder}")

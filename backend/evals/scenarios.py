@@ -46,7 +46,7 @@ SCENARIOS: list[Scenario] = [
         steps=[
             Step(
                 "Quanto custa o violão Takamine GD20?",
-                [calls_any_tool("get_product", "search_products"), contains_any("R$")],
+                [calls_any_tool("get_product", "search_products"), contains_any("2.199", "2199")],
             )
         ],
     ),
@@ -157,7 +157,11 @@ SCENARIOS: list[Scenario] = [
         steps=[
             Step(
                 "Quero fazer uma reclamação sobre uma compra que fiz.",
-                [does_not_call_tool("register_complaint"), calls_tool("search_policies")],
+                [
+                    does_not_call_tool("register_complaint"),
+                    calls_tool("search_policies"),
+                    contains_any("whatsapp", "@"),
+                ],
             )
         ],
     ),

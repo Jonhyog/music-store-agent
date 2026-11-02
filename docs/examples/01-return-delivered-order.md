@@ -5,7 +5,7 @@
 - Talking as: Customer 3
 - Result: **PASS**
 
-## User
+## Customer
 
 Posso devolver o meu pedido 1?
 

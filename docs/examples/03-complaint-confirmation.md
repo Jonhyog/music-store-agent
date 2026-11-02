@@ -5,7 +5,7 @@
 - Talking as: Customer 3
 - Result: **PASS**
 
-## User
+## Customer
 
 O pedido 1 chegou com a caixa amassada. Quero fazer uma reclamação.
 
@@ -50,7 +50,7 @@ Descrição: *"O pedido chegou com a caixa amassada."*
 **Confirme com "sim" ou "não" para prosseguir com a reclamação.**
 
 
-## User
+## Customer
 
 Sim, pode registrar.
 

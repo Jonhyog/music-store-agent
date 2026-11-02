@@ -5,7 +5,7 @@ import json
 from evals.runner import ScenarioResult
 
 
-def _verdict(passed: bool) -> str:
+def verdict(passed: bool) -> str:
     return "PASS" if passed else "FAIL"
 
 
@@ -22,11 +22,12 @@ def render_transcript(result: ScenarioResult) -> str:
         f"- Scenario: `{scenario.id}`",
         f"- Model: `{result.model_id}`",
         f"- Talking as: {who}",
-        f"- Result: **{_verdict(result.passed)}**",
+        f"- Result: **{verdict(result.passed)}**",
         "",
     ]
+    speaker = "Customer" if scenario.customer_id else "Visitor"
     for step, reply, failures in zip(scenario.steps, result.replies, result.failures, strict=False):
-        lines += ["## User", "", step.message, ""]
+        lines += [f"## {speaker}", "", step.message, ""]
         for call in reply.tool_calls:
             lines += [
                 f"> Tool call: `{call.name}`",
@@ -60,7 +61,7 @@ def render_summary(results: list[ScenarioResult]) -> str:
     ]
     for scenario_id in scenario_ids:
         cells = [
-            _verdict(by_key[scenario_id, m].passed) if (scenario_id, m) in by_key else "-"
+            verdict(by_key[scenario_id, m].passed) if (scenario_id, m) in by_key else "-"
             for m in models
         ]
         lines.append(f"| {scenario_id} | " + " | ".join(cells) + " |")
