@@ -51,8 +51,8 @@ def test_local_and_api_providers_have_separate_indexes(settings):
     registry = CountingRegistry(settings)
     indexes = PolicyIndexes(registry, PDF)
     indexes.search("qwen3:4b", "garantia")
-    indexes.search("gpt-5.6-luna", "garantia")
-    indexes.search("gpt-5.6-luna", "frete")
+    indexes.search("gpt-6-luna", "garantia")
+    indexes.search("gpt-6-luna", "frete")
     assert registry.builds == ["ollama", "openai"]
 
 

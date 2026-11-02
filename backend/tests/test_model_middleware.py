@@ -31,8 +31,8 @@ def test_unknown_model_is_400(probe):
 
 
 def test_unavailable_model_is_503(probe, registry):
-    registry.available["gpt-5.6-luna"] = False
-    r = probe.get("/chat", headers={"x-model": "gpt-5.6-luna"})
+    registry.available["gpt-6-luna"] = False
+    r = probe.get("/chat", headers={"x-model": "gpt-6-luna"})
     assert r.status_code == 503
 
 

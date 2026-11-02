@@ -8,16 +8,16 @@ from evals.runner import EvalError, Scenario, Step, run_scenario, select_models
 MODELS = [
     {"id": "qwen3:4b", "available": True},
     {"id": "qwen3:8b", "available": False},
-    {"id": "gpt-5.6-luna", "available": True},
+    {"id": "gpt-6-luna", "available": True},
 ]
 
 
 def test_without_a_flag_every_available_model_runs():
-    assert select_models(MODELS, None) == ["qwen3:4b", "gpt-5.6-luna"]
+    assert select_models(MODELS, None) == ["qwen3:4b", "gpt-6-luna"]
 
 
 def test_a_flag_narrows_the_run_to_that_model():
-    assert select_models(MODELS, "gpt-5.6-luna") == ["gpt-5.6-luna"]
+    assert select_models(MODELS, "gpt-6-luna") == ["gpt-6-luna"]
 
 
 def test_a_flag_naming_an_unavailable_or_unknown_model_is_an_error():

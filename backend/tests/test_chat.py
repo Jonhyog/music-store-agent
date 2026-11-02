@@ -127,7 +127,7 @@ def test_policy_search_surfaces_sections_and_uses_the_requests_provider(client, 
         ),
         AIMessage(content="Até 7 dias (seção 4.1)."),
     ]
-    events = _events(_chat(client, message="Posso devolver?", headers={"x-model": "gpt-5.6-luna"}))
+    events = _events(_chat(client, message="Posso devolver?", headers={"x-model": "gpt-6-luna"}))
     result = next(e for e in events if e != "[DONE]" and e["type"] == "tool-output-available")
     assert len(result["output"]) == 4
     assert all(chunk["section"] and chunk["text"] for chunk in result["output"])

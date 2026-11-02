@@ -64,7 +64,7 @@ def test_blank_openai_key_marks_api_model_unavailable(settings):
     )
     with TestClient(create_app(blank)) as c:
         models = {m["id"]: m for m in c.get("/models").json()["models"]}
-    assert models["gpt-5.6-luna"]["available"] is False
+    assert models["gpt-6-luna"]["available"] is False
     assert models["qwen3:4b"]["available"] is False
 
 
