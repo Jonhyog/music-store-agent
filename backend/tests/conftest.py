@@ -25,3 +25,8 @@ def registry(settings: Settings) -> FakeRegistry:
 def client(settings: Settings, registry: FakeRegistry):
     with TestClient(create_app(settings, registry=registry)) as c:
         yield c
+
+
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
