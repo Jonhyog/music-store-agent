@@ -1,3 +1,4 @@
+import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -32,6 +33,7 @@ def create_app(
     settings = settings or Settings()
     app = FastAPI(title="Music Store Assistant", lifespan=lifespan)
     app.state.settings = settings
+    os.environ.update(settings.langsmith_env())
     app.state.registry = registry or ProviderRegistry(settings)
     app.state.conversations = Conversations()
     # Last added runs first, so the order is CORS, customer, model. CORS wraps the rest so

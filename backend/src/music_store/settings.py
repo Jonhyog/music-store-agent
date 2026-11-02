@@ -17,3 +17,16 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     openai_api_key: SecretStr | None = None
     default_model: str = "qwen3:4b"
+    langsmith_tracing: bool = False
+    langsmith_api_key: SecretStr | None = None
+    langsmith_project: str = "music-store-assistant"
+
+    def langsmith_env(self) -> dict[str, str]:
+        """Environment variables LangChain reads to enable LangSmith tracing (empty when off)."""
+        if not self.langsmith_tracing or self.langsmith_api_key is None:
+            return {}
+        return {
+            "LANGSMITH_TRACING": "true",
+            "LANGSMITH_API_KEY": self.langsmith_api_key.get_secret_value(),
+            "LANGSMITH_PROJECT": self.langsmith_project,
+        }
