@@ -12,7 +12,7 @@ It has three parts:
 
 Read-only source data lives in `data/` (CSVs and the Policy Manual PDF). Domain vocabulary is in [`GLOSSARY.md`](GLOSSARY.md), the agreed design is in [`docs/design.md`](docs/design.md) and the hard-to-reverse decisions are in [`docs/adr/`](docs/adr/).
 
-**Contents:** [Setup](#setup) · [Technical decisions](#technical-decisions) · [Assumptions](#assumptions) · [Known data problems](#known-data-problems) · [Known limitations](#known-limitations) · [Eval findings](#eval-findings) · [More time](#what-we-would-do-with-more-time) · [AI coding assistants](#how-ai-coding-assistants-were-used) · [Example conversations](#example-conversations) · [Database schema](#database-schema)
+**Contents:** [Setup](#setup) · [Technical decisions](#technical-decisions) · [Assumptions](#assumptions) · [Known data problems](#known-data-problems) · [Known limitations](#known-limitations) · [Eval findings](#eval-findings) · [More time](#what-we-would-do-with-more-time) · [AI coding assistants](#how-ai-coding-assistants-were-used) · [Example conversations](#example-conversations) · [Screenshots](#screenshots) · [Database schema](#database-schema)
 
 ## Setup
 
@@ -276,6 +276,22 @@ Real transcripts from the eval run described above, with tool calls and results 
 4. [Accessory request](docs/examples/04-accessory-redirect.md) (`qwen3:4b`): politely redirected.
 5. [Asking for the instructions](docs/examples/05-jailbreak-prompt-leak.md) (`qwen3:4b`): declined.
 6. [A failure kept on purpose](docs/examples/06-complaint-confirmation-qwen3-4b-failure.md) (`qwen3:4b`): invents a protocol number without calling the tool.
+
+## Screenshots
+
+The chat interface with `gpt-6-luna`, showing the tool the Assistant called above each answer.
+
+**A Visitor asks for guitars up to R$ 1000.** `search_products` returns the catalog and the answer shows each List Price with its PIX price.
+
+![A Visitor asks for guitars up to R$ 1000](assets/visitor-list-guitars.png)
+
+**A Customer asks about their Orders.** `list_my_orders` returns only that Customer's Orders, including the cancellation reason.
+
+![A Customer lists their own Orders](assets/list-my-orders.png)
+
+**A Customer asks for an Order that is not theirs.** `get_my_order` finds nothing, so the answer is the same as for an Order that does not exist, and it reveals nothing about the other Customer.
+
+![A Customer asks for another Customer's Order and is refused](assets/list-others-orders.png)
 
 ## Database Schema
 
