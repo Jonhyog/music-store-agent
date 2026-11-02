@@ -54,7 +54,7 @@ Agreed design for the customer-service Assistant prototype described in `desafio
 
 - Errors that happen before streaming starts are regular HTTP errors (400, 409, 422, 503).
 - The stream uses the Vercel AI SDK UI message stream protocol (header `x-vercel-ai-ui-message-stream: v1`). Event types: `start`, `text-start`, `text-delta`, `text-end`, `tool-input-available`, `tool-output-available`, `error`, `finish`, `[DONE]`.
-- An Adapter converts LangGraph `astream` output into this protocol. Tool calls are streamed with their full arguments and results. qwen3 runs with thinking on so Ollama separates the reasoning from the answer; the Adapter drops it, so there are no reasoning parts.
+- An Adapter converts LangGraph `astream` output into this protocol. Tool calls are streamed with their full arguments and results. qwen3 runs with thinking on so Ollama separates the reasoning from the answer; the Adapter streams it as `reasoning-start`/`reasoning-delta`/`reasoning-end` parts, closed before the answer text or any tool call.
 
 ## Data
 

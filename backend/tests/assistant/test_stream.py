@@ -32,6 +32,11 @@ def _model(chunk):
     return ("messages", (chunk, {"langgraph_node": "model"}))
 
 
+def _thinking(text):
+    chunk = AIMessageChunk(content="", additional_kwargs={"reasoning_content": text}, id="m1")
+    return _model(chunk)
+
+
 async def test_streamed_chunks_become_one_text_part():
     events = await _collect(
         [
@@ -114,3 +119,33 @@ async def _lines(raw):
     async for line in ui_message_stream(raw):
         if line != DONE:
             yield line
+
+
+async def test_reasoning_streams_as_its_own_part_before_the_answer():
+    events = await _collect(
+        [
+            _thinking("Hm"),
+            _thinking("..."),
+            _model(AIMessageChunk(content="Oi", id="m1")),
+            ("updates", {"model": {"messages": [AIMessage(content="Oi", id="m1")]}}),
+        ]
+    )  # fmt: skip
+    assert [e["type"] for e in events[:-1]] == [
+        "start", "reasoning-start", "reasoning-delta", "reasoning-delta", "reasoning-end",
+        "text-start", "text-delta", "text-end", "finish",
+    ]  # fmt: skip
+    assert [e["delta"] for e in events[:-1] if e["type"] == "reasoning-delta"] == ["Hm", "..."]
+
+
+async def test_reasoning_is_closed_before_tool_calls():
+    call = AIMessage(content="", tool_calls=[{"name": "t", "args": {}, "id": "c1"}])
+    events = await _collect(
+        [
+            _thinking("Hm"),
+            ("updates", {"model": {"messages": [call]}}),
+        ]
+    )  # fmt: skip
+    assert [e["type"] for e in events[:-1]] == [
+        "start", "reasoning-start", "reasoning-delta", "reasoning-end",
+        "tool-input-available", "finish",
+    ]  # fmt: skip

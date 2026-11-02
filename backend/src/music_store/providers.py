@@ -72,7 +72,7 @@ class ProviderRegistry:
             return ChatOpenAI(model=spec.id, api_key=self.settings.openai_api_key)
         # Thinking stays on: with it off, Ollama's qwen3 template leaves the model inside an
         # unclosed <think> block and the reasoning leaks into the answer. With it on, Ollama
-        # separates it into `reasoning_content`, which the stream adapter never forwards.
+        # separates it into `reasoning_content`, which the stream adapter forwards as reasoning parts.
         return ChatOllama(model=spec.id, base_url=self.settings.ollama_base_url, reasoning=True)
 
     def embeddings(self, model_id: str) -> Embeddings:

@@ -142,7 +142,7 @@ A text-chat Assistant with a web UI and an HTTP API:
   - Evicts Conversations idle for more than one hour.
   - Rolls back a turn automatically on failure or client disconnect by removing every message added since the turn began.
   - Deletes a Conversation on request.
-- **Stream adapter**: converts the agent's streamed output (message chunks and step updates) into the Vercel AI SDK UI message stream protocol over SSE: `start`, `text-start`, `text-delta`, `text-end`, `tool-input-available` (tool name and arguments), `tool-output-available` (full result), `error`, `finish`, and the `[DONE]` terminator, with the protocol's identifying response header. There are no reasoning parts.
+- **Stream adapter**: converts the agent's streamed output (message chunks and step updates) into the Vercel AI SDK UI message stream protocol over SSE: `start`, `text-start`, `text-delta`, `text-end`, `reasoning-start`, `reasoning-delta`, `reasoning-end` (when the model separates its reasoning), `tool-input-available` (tool name and arguments), `tool-output-available` (full result), `error`, `finish`, and the `[DONE]` terminator, with the protocol's identifying response header.
 - **HTTP layer (FastAPI)**:
   - CORS runs first.
   - Then a pure ASGI customer middleware: it reads `x-customer-id`, loads the Customer into request state (or Visitor when the header is absent), and returns its own JSON 400 for malformed or unknown ids.

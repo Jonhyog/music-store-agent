@@ -51,14 +51,17 @@ class StreamAdapter:
     """Translates `agent.astream(stream_mode=["messages", "updates"])` items into UI events.
 
     - `messages` items carry the model's text (as chunks, or as one whole message when the
-      model does not stream). They open and fill a text part.
+      model does not stream). They open and fill a text part. Reasoning, when the model
+      separates it from the answer, fills a reasoning part the same way.
     - `updates` items report finished steps: a model step closes the text part and announces its
       tool calls, a tools step delivers the tool results.
     """
 
     def __init__(self) -> None:
         self._open_text_id: str | None = None
+        self._open_reasoning_id: str | None = None
         self._text_parts = 0
+        self._reasoning_parts = 0
         self._chunked_message_ids: set[str] = set()
         self._by_mode: dict[str, Callable[[Any], list[Event]]] = {
             "messages": self._on_messages_item,
@@ -77,16 +80,26 @@ class StreamAdapter:
         return handler(data) if handler else []
 
     def finish(self) -> list[Event]:
-        return [*self.close_text(), {"type": "finish"}]
+        return [*self.close_parts(), {"type": "finish"}]
 
     def fail(self) -> list[Event]:
-        return [*self.close_text(), {"type": "error", "errorText": STREAM_ERROR_TEXT}]
+        return [*self.close_parts(), {"type": "error", "errorText": STREAM_ERROR_TEXT}]
+
+    def close_parts(self) -> list[Event]:
+        return [*self.close_reasoning(), *self.close_text()]
 
     def close_text(self) -> list[Event]:
         if self._open_text_id is None:
             return []
         event = {"type": "text-end", "id": self._open_text_id}
         self._open_text_id = None
+        return [event]
+
+    def close_reasoning(self) -> list[Event]:
+        if self._open_reasoning_id is None:
+            return []
+        event = {"type": "reasoning-end", "id": self._open_reasoning_id}
+        self._open_reasoning_id = None
         return [event]
 
     # --- `messages` items -------------------------------------------------------------------
@@ -99,10 +112,24 @@ class StreamAdapter:
             self._remember_chunked(message)
         elif self._was_already_chunked(message):
             return []
+        return [*self._reasoning_events(message), *self._text_events(message)]
+
+    def _reasoning_events(self, message: AIMessage) -> list[Event]:
+        reasoning = message.additional_kwargs.get("reasoning_content")
+        if not reasoning:
+            return []
+        return [
+            *self.close_text(),
+            *self._open_reasoning_part(),
+            {"type": "reasoning-delta", "id": self._open_reasoning_id, "delta": reasoning},
+        ]
+
+    def _text_events(self, message: AIMessage) -> list[Event]:
         text = _text_of(message)
         if not text:
             return []
         return [
+            *self.close_reasoning(),
             *self._open_text_part(),
             {"type": "text-delta", "id": self._open_text_id, "delta": text},
         ]
@@ -126,6 +153,13 @@ class StreamAdapter:
         self._open_text_id = f"text-{self._text_parts}"
         return [{"type": "text-start", "id": self._open_text_id}]
 
+    def _open_reasoning_part(self) -> list[Event]:
+        if self._open_reasoning_id is not None:
+            return []
+        self._reasoning_parts += 1
+        self._open_reasoning_id = f"reasoning-{self._reasoning_parts}"
+        return [{"type": "reasoning-start", "id": self._open_reasoning_id}]
+
     # --- `updates` items --------------------------------------------------------------------
 
     def _on_updates_item(self, update: dict[str, Any]) -> list[Event]:
@@ -142,7 +176,7 @@ class StreamAdapter:
         if not isinstance(message, AIMessage):
             return []
         return [
-            *self.close_text(),
+            *self.close_parts(),
             *(
                 {
                     "type": "tool-input-available",
