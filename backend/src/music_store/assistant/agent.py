@@ -7,7 +7,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 
 from music_store.assistant.context import AgentContext
 from music_store.assistant.prompt import render_system_prompt
-from music_store.assistant.tools import CATALOG_TOOLS
+from music_store.assistant.tools import CATALOG_TOOLS, ORDER_TOOLS
 
 
 @dynamic_prompt
@@ -18,7 +18,7 @@ def _system_prompt(request: ModelRequest) -> str:
 def build_agent(model: BaseChatModel, checkpointer: BaseCheckpointSaver):
     return create_agent(
         model,
-        tools=CATALOG_TOOLS,
+        tools=[*CATALOG_TOOLS, *ORDER_TOOLS],
         middleware=[_system_prompt],
         context_schema=AgentContext,
         checkpointer=checkpointer,

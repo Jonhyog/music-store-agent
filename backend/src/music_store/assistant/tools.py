@@ -8,7 +8,7 @@ from typing import Any
 from langchain.tools import ToolRuntime, tool
 from pydantic import BaseModel
 
-from music_store.assistant import catalog
+from music_store.assistant import catalog, orders
 from music_store.assistant.context import AgentContext
 
 
@@ -88,4 +88,40 @@ def list_active_promotions(
     return _dump(products)
 
 
+NOT_IDENTIFIED = {"error": "Customer not identified: ask the person to identify themselves."}
+ORDER_NOT_FOUND = {"error": "Order not found."}
+
+
+@tool
+def list_my_orders(
+    runtime: ToolRuntime[AgentContext], status: str | None = None
+) -> list[dict[str, Any]] | dict[str, str]:
+    """List the identified Customer's own Orders, newest first.
+
+    Args:
+        status: Optional Order Status: pending, confirmed, shipped, delivered or cancelled.
+
+    Returns each Order with status, total, payment method, tracking code, estimated delivery,
+    notes and its items (Product name and quantity).
+    """
+    customer = runtime.context.customer
+    if customer is None:
+        return NOT_IDENTIFIED
+    with _connection(runtime) as conn:
+        found = orders.list_orders(conn, customer_id=customer.customer_id, status=status)
+    return _dump(found)
+
+
+@tool
+def get_my_order(runtime: ToolRuntime[AgentContext], order_id: int) -> dict[str, Any]:
+    """Get one of the identified Customer's own Orders by its id, with items and tracking."""
+    customer = runtime.context.customer
+    if customer is None:
+        return NOT_IDENTIFIED
+    with _connection(runtime) as conn:
+        order = orders.get_order(conn, customer_id=customer.customer_id, order_id=order_id)
+    return order.model_dump(mode="json") if order else ORDER_NOT_FOUND
+
+
 CATALOG_TOOLS = [search_products, get_product, list_categories, list_active_promotions]
+ORDER_TOOLS = [list_my_orders, get_my_order]
